@@ -197,9 +197,16 @@ def planning(request):
 
 @login_required
 def kanban(request):
+    kanban_statuses = [
+        (Task.Status.NEW, "Новая"),
+        (Task.Status.PLANNED, "Запланирована"),
+        (Task.Status.IN_PROGRESS, "В работе"),
+        (Task.Status.REVIEW, "На согласовании"),
+        (Task.Status.DONE, "Выполнена"),
+    ]
     tasks = task_queryset_for_user(request.user).select_related("department", "responsible")
-    columns = {status: tasks.filter(status=status) for status, _ in Task.Status.choices}
-    return render(request, "kanban/index.html", {"columns": columns, "statuses": Task.Status.choices, "title": "Канбан"})
+    columns = {status: tasks.filter(status=status) for status, _ in kanban_statuses}
+    return render(request, "kanban/index.html", {"columns": columns, "statuses": kanban_statuses, "title": "Канбан"})
 
 
 @login_required
