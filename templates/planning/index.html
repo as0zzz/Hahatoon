@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load ttm_tags %}
+{% block title %}Планирование TTM{% endblock %}
+{% block content %}
+<section class="planning-grid">
+  {% for period,label in periods %}
+    <article class="panel">
+      <h3>{{ label }}</h3>
+      {% for task in grouped|dict_get:period %}
+        <a class="task-row" href="{% url 'tasks:detail' task.id %}">
+          <span><strong>{{ task.title }}</strong><small>{{ task.department.name|default:"Без отдела" }}</small></span>
+          <time>{{ task.deadline|date:"d.m"|default:"" }}</time>
+        </a>
+      {% empty %}
+        <p class="empty">Нет задач на этот период.</p>
+      {% endfor %}
+    </article>
+  {% endfor %}
+</section>
+{% endblock %}

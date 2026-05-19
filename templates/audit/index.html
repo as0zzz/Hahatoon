@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Аудит TTM{% endblock %}
+{% block content %}
+<section class="panel full-page-panel">
+  <div class="panel-head" style="margin-bottom: 12px;">
+    <h2 style="margin: 0;">Журнал аудита</h2>
+  </div>
+  <div class="scroll-list">
+  {% for log in logs %}
+    <div class="audit-row">
+      <strong>{{ log.user.profile.full_name|default:log.user.username|default:"Система" }}</strong>
+      <span>
+        {% if log.action == "change_status" %}изменил(а) статус задачи
+        {% elif log.action == "create" %}создал(а) задачу
+        {% elif log.action == "comment" %}оставил(а) комментарий к задаче
+        {% elif log.action == "ai_ask" %}отправил(а) запрос к AI
+        {% else %}{{ log.action }} {{ log.object_type }}{% endif %}
+        #{{ log.object_id }}
+      </span>
+      <small>{{ log.created_at|date:"d.m.Y H:i" }}</small>
+    </div>
+  {% empty %}
+    <p class="empty">Записей аудита пока нет.</p>
+  {% endfor %}
+  </div>
+</section>
+{% endblock %}

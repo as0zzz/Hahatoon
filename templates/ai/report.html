@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}AI-отчёт TTM{% endblock %}
+{% block content %}
+<section class="panel narrow">
+  <h2>AI-отчёт</h2>
+  <div class="answer-box">{{ content|linebreaks }}</div>
+  <a class="btn btn-light" href="{% url 'ai:index' %}">Вернуться к AI-помощнику</a>
+</section>
+{% endblock %}

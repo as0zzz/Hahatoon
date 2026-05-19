@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Вход в TTM</title>
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body class="login-page">
+  <main class="login-card">
+    <div class="brand brand-login">
+      {% load static %}
+      <span class="brand-mark"><img src="{% static 'img/ttm-znak_gradient.png' %}" alt="TTM"></span>
+      <span>
+        <strong>Транстелематика</strong>
+        <small>корпоративный контур задач</small>
+      </span>
+    </div>
+    <h1>Вход</h1>
+    {% if form.errors %}
+      <div class="message error">Проверьте логин и пароль.</div>
+    {% endif %}
+    <form method="post" class="stack">
+      {% csrf_token %}
+      <label><span>Логин</span> {{ form.username }}</label>
+      <label><span>Пароль</span> {{ form.password }}</label>
+      <button class="btn btn-primary" type="submit">Войти</button>
+    </form>
+    <p class="muted">Для доступа используйте корпоративную учётную запись.</p>
+  </main>
+</body>
+</html>

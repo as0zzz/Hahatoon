@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} TTM{% endblock %}
+{% block content %}
+<section class="panel narrow form-panel" style="margin: 0 auto; margin-top: 24px;">
+  <div class="form-title" style="text-align: center; margin-bottom: 32px;">
+    <h2>{{ title|default:"Создание мероприятия" }}</h2>
+    <p class="muted">Заполните ключевые поля формы. Дополнительные детали можно будет указать позже.</p>
+  </div>
+  <form method="post" class="form-grid">
+    {% csrf_token %}
+    {% for field in form %}
+      <label>
+        <span>{{ field.label }}</span>
+        {{ field }}
+        {% for error in field.errors %}<small class="error-text">{{ error }}</small>{% endfor %}
+      </label>
+    {% endfor %}
+    <div class="form-actions" style="margin-top: 24px; justify-content: center;">
+      <button class="btn btn-primary" type="submit" style="min-width: 160px;">Сохранить</button>
+      <a class="btn btn-light" href="{% url 'tasks:list' %}">Отмена</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

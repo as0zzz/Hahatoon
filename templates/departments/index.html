@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Отделы TTM{% endblock %}
+{% block content %}
+<section class="content-grid three">
+  {% for department in departments %}
+    <a class="department-card" href="{% url 'departments:detail' department.id %}">
+      <h3>{{ department.name }}</h3>
+      <p>{{ department.description|default:"Описание отдела будет заполнено позднее." }}</p>
+      <div class="metric-row">
+        <strong>{{ department.total_tasks }}</strong><small>задач</small>
+        <strong>{{ department.attention_tasks }}</strong><small>рисков</small>
+        <strong>{{ department.employees_count }}</strong><small>людей</small>
+      </div>
+    </a>
+  {% empty %}
+    <p class="empty">Отделы не созданы.</p>
+  {% endfor %}
+</section>
+{% endblock %}

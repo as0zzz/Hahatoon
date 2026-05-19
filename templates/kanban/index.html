@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load ttm_tags %}
+{% block title %}Канбан TTM{% endblock %}
+{% block content %}
+<section class="kanban-board">
+  {% for status,label in statuses %}
+    <article class="kanban-column" data-status="{{ status }}">
+      <h3>{{ label }}</h3>
+      <div class="kanban-cards">
+      {% for task in columns|dict_get:status %}
+        <a class="kanban-card" href="{% url 'tasks:detail' task.id %}" draggable="true" data-task-id="{{ task.id }}" data-change-url="{% url 'tasks:change_status' task.id %}">
+          <strong>{{ task.title }}</strong>
+          <span>{{ task.responsible.profile.full_name|default:"не назначен" }}</span>
+          <em class="badge {{ task.risk_level|risk_class }}">{{ task.get_risk_level_display }}</em>
+        </a>
+      {% empty %}
+        <p class="empty">Нет задач.</p>
+      {% endfor %}
+      </div>
+    </article>
+  {% endfor %}
+</section>
+{% endblock %}

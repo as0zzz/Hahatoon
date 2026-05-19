@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load ttm_tags %}
+{% block title %}Календарь задач TTM{% endblock %}
+{% block content %}
+<section class="calendar-page">
+  <div class="calendar-workspace">
+    <div class="calendar-toolbar">
+      <div></div>
+      <div class="calendar-controls">
+        <a class="calendar-nav-btn" href="?year={{ previous_month.year }}&month={{ previous_month.month }}">‹</a>
+        <span>{{ month_label }}</span>
+        <a class="calendar-nav-btn" href="?year={{ next_month.year }}&month={{ next_month.month }}">›</a>
+      </div>
+      <a class="btn btn-primary" href="{% url 'tasks:create' %}">Новая задача</a>
+    </div>
+
+    <div class="calendar-weekdays">
+      {% for day in weekdays %}<span>{{ day }}</span>{% endfor %}
+    </div>
+    <div class="calendar-month-grid">
+      {% for week in weeks %}
+        {% for day in week %}
+          <a class="calendar-day{% if not day.is_current_month %} muted-day{% endif %}{% if day.is_today %} today{% endif %}{% if day.is_selected %} selected{% endif %}" href="{{ day.url }}">
+            <span class="day-number">{{ day.number }}</span>
+            <span class="day-dots">
+              {% for task in day.tasks|slice:":4" %}
+                <i class="dot {{ task.risk_level|risk_class }}" title="{{ task.title }}"></i>
+              {% endfor %}
+            </span>
+            {% if day.tasks|length > 4 %}
+              <small>+{{ day.tasks|length|add:"-4" }}</small>
+            {% endif %}
+          </a>
+        {% endfor %}
+      {% endfor %}
+    </div>
+    <p class="calendar-hint">Наведите на день, чтобы увидеть индикаторы задач. Нажмите на день, чтобы открыть список справа.</p>
+  </div>
+
+  <aside class="selected-day-panel">
+    <div class="selected-day-head">
+      <span>{{ selected_date|date:"l" }}</span>
+      <strong>{{ selected_date|date:"j E Y" }}</strong>
+    </div>
+    <div class="selected-day-count">
+      <h3>Задачи на день</h3>
+      <span>{{ selected_tasks|length }}</span>
+    </div>
+    <div class="selected-task-list">
+      {% for task in selected_tasks %}
+        <a class="selected-task" href="{% url 'tasks:detail' task.id %}">
+          <i class="dot {{ task.risk_level|risk_class }}"></i>
+          <span>
+            <strong>{{ task.title }}</strong>
+            <small>{{ task.department.name|default:"Без отдела" }} · {{ task.get_status_display }}</small>
+          </span>
+          <em class="badge {{ task.risk_level|risk_class }}">{{ task.get_risk_level_display }}</em>
+        </a>
+      {% empty %}
+        <p class="empty">На выбранный день задач нет.</p>
+      {% endfor %}
+    </div>
+    <a class="btn btn-primary full-width" href="{% url 'tasks:create' %}">Создать задачу</a>
+  </aside>
+</section>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Дашборды TTM{% endblock %}
+{% block content %}
+<section class="kpi-grid">
+  <article class="kpi-card"><span>Выполнение</span><strong>{{ metrics.completion }}%</strong></article>
+  <article class="kpi-card"><span>Высокий приоритет</span><strong>{{ metrics.high_priority }}</strong></article>
+  <article class="kpi-card warning"><span>Просрочки</span><strong>{{ metrics.overdue }}</strong></article>
+  <article class="kpi-card attention"><span>Риски</span><strong>{{ metrics.attention }}</strong></article>
+</section>
+<section class="content-grid two">
+  <article class="panel"><h3>Статусы</h3><canvas data-chart="bar" data-labels="{{ status_labels|join:',' }}" data-values="{{ status_values|join:',' }}"></canvas></article>
+  <article class="panel"><h3>Отделы</h3><canvas data-chart="bar" data-labels="{{ department_labels|join:',' }}" data-values="{{ department_values|join:',' }}"></canvas></article>
+  <article class="panel"><h3>Периоды</h3><canvas data-chart="doughnut" data-labels="{{ period_labels|join:',' }}" data-values="{{ period_values|join:',' }}"></canvas></article>
+  <article class="panel"><h3>Загрузка сотрудников</h3><canvas data-chart="bar" data-labels="{{ workload_labels|join:',' }}" data-values="{{ workload_values|join:',' }}"></canvas></article>
+</section>
+{% endblock %}

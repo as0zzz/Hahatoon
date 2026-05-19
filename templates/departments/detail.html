@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load ttm_tags %}
+{% block title %}{{ department.name }} TTM{% endblock %}
+{% block content %}
+<section class="panel">
+  <h2>{{ department.name }}</h2>
+  <p>{{ department.description }}</p>
+  {% for task in tasks %}
+    <a class="task-row" href="{% url 'tasks:detail' task.id %}">
+      <span><strong>{{ task.title }}</strong><small>{{ task.responsible.profile.full_name|default:"не назначен" }}</small></span>
+      <em class="badge {{ task.status|status_class }}">{{ task.get_status_display }}</em>
+    </a>
+  {% empty %}
+    <p class="empty">У отдела пока нет задач.</p>
+  {% endfor %}
+</section>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Настройки TTM{% endblock %}
+{% block content %}
+<section class="content-grid three">
+  {% for section in sections %}
+    <article class="settings-card">
+      <h3>{{ section }}</h3>
+      <p>Раздел доступен для просмотра и настройки корпоративного контура.</p>
+      {% if section == "Уведомления" %}
+        <form method="post" action="{% url 'test_notification' %}" style="margin-top: 16px;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Тест уведомлений</button>
+        </form>
+      {% endif %}
+    </article>
+  {% endfor %}
+</section>
+{% endblock %}

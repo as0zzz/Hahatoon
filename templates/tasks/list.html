@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load ttm_tags %}
+{% block title %}{{ title }} TTM{% endblock %}
+{% block content %}
+{% if is_mine %}
+  <section class="profile-workspace">
+    <article class="profile-card">
+      <div class="avatar">{{ profile.full_name|default:user.username|slice:":1" }}</div>
+      <div>
+        <h2>{{ profile.full_name|default:user.username }}</h2>
+        <p>{{ profile.position|default:"Сотрудник" }}</p>
+        <span>{{ profile.department.name|default:"Подразделение не указано" }}</span>
+      </div>
+      <div class="profile-stats">
+        <strong>{{ task_metrics.total }}</strong><span>задач</span>
+        <strong>{{ task_metrics.overdue }}</strong><span>просрочено</span>
+        <strong>{{ task_metrics.attention }}</strong><span>в фокусе</span>
+      </div>
+    </article>
+    <article class="panel focus-card">
+      <h3>Ближайший фокус</h3>
+      {% for task in focus_tasks %}
+        <a class="focus-task" href="{% url 'tasks:detail' task.id %}">
+          <span>{{ task.deadline|date:"d.m"|default:"без срока" }}</span>
+          <strong>{{ task.title }}</strong>
+          <em class="badge {{ task.priority|priority_class }}">{{ task.get_priority_display }}</em>
+        </a>
+      {% empty %}
+        <p class="empty">Активных задач нет.</p>
+      {% endfor %}
+    </article>
+  </section>
+{% endif %}
+<section class="panel">
+  <div class="panel-head">
+    <div></div>
+    <a class="btn btn-primary" href="{% url 'tasks:create' %}">Создать задачу</a>
+  </div>
+  <form class="filters task-filters" method="get">
+    <input name="q" value="{{ selected.q }}" placeholder="Поиск по задачам">
+    <select name="department">
+      <option value="">Все отделы</option>
+      {% for dep in departments %}
+        <option value="{{ dep.id }}" {% if selected.department == dep.id|stringformat:"s" %}selected{% endif %}>{{ dep.name }}</option>
+      {% endfor %}
+    </select>
+    <select name="status">
+      <option value="">Все статусы</option>
+      {% for value,label in statuses %}<option value="{{ value }}" {% if selected.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <select name="priority">
+      <option value="">Все приоритеты</option>
+      {% for value,label in priorities %}<option value="{{ value }}" {% if selected.priority == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-light" type="submit">Применить</button>
+  </form>
+</section>
+<section class="panel task-table-panel {% if is_mine %}mine-table{% endif %}">
+  <div class="table-wrap">
+    <table class="task-table">
+      <thead>
+        <tr>
+          <th>Задача</th>
+          <th>Отдел</th>
+          <th>Ответственный</th>
+          <th>Дедлайн</th>
+          <th>Статус</th>
+          <th>Приоритет</th>
+          <th>Риск</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for task in tasks %}
+          <tr>
+            <td>
+              <a class="table-title" href="{% url 'tasks:detail' task.id %}">{{ task.title }}</a>
+              <small>{{ task.description|default:"Описание не заполнено"|truncatechars:110 }}</small>
+            </td>
+            <td>{{ task.department.name|default:"Без отдела" }}</td>
+            <td>{{ task.responsible.profile.full_name|default:"не назначен" }}</td>
+            <td>{{ task.deadline|date:"d.m.Y"|default:"без срока" }}</td>
+            <td><span class="badge {{ task.status|status_class }}">{{ task.get_status_display }}</span></td>
+            <td><span class="badge {{ task.priority|priority_class }}">{{ task.get_priority_display }}</span></td>
+            <td>
+              <span class="badge {{ task.risk_level|risk_class }}">{{ task.get_risk_level_display }}</span>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7"><p class="empty">Пока задач нет. Создайте первую задачу или выберите другой фильтр.</p></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% if page_obj %}
+  <div class="pagination">
+    {% if page_obj.has_previous %}<a href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.previous_page_number }}">Назад</a>{% endif %}
+    <span>{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.next_page_number }}">Вперёд</a>{% endif %}
+  </div>
+{% endif %}
+{% endblock %}

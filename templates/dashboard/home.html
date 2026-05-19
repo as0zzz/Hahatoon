@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load ttm_tags %}
+{% block title %}Главная TTM{% endblock %}
+{% block content %}
+<section class="hero-band">
+  <div>
+    <p class="eyebrow">Главная панель</p>
+    <h2>Сводка по задачам и проектам</h2>
+    <p>Аналитика выполнения, контроль просрочек и загрузка сотрудников в реальном времени.</p>
+  </div>
+  <div class="hero-stat">
+    <span>{{ metrics.completion }}%</span>
+    <small>выполнение плана</small>
+  </div>
+</section>
+
+<section class="kpi-grid">
+  <article class="kpi-card"><span>Всего задач</span><strong>{{ metrics.total }}</strong></article>
+  <article class="kpi-card"><span>Выполнено</span><strong>{{ metrics.done }}</strong></article>
+  <article class="kpi-card warning"><span>Просрочено</span><strong>{{ metrics.overdue }}</strong></article>
+  <article class="kpi-card attention"><span>Требуют внимания</span><strong>{{ metrics.attention }}</strong></article>
+</section>
+
+<section class="content-grid two">
+  <article class="panel">
+    <div class="panel-head">
+      <h3>Требуют внимания</h3>
+      <a href="{% url 'tasks:list' %}?risk_level=high">Все риски</a>
+    </div>
+    {% for task in metrics.risky_tasks %}
+      <a class="task-row" href="{% url 'tasks:detail' task.id %}">
+        <span>
+          <strong>{{ task.title }}</strong>
+          <small>{{ task.department.name|default:"Без отдела" }} · {{ task.deadline|default:"без срока" }}</small>
+        </span>
+        <em class="badge {{ task.risk_level|risk_class }}">{{ task.get_risk_level_display }}</em>
+      </a>
+    {% empty %}
+      <p class="empty">Пока нет задач с высоким риском.</p>
+    {% endfor %}
+  </article>
+
+  <article class="panel">
+    <div class="panel-head">
+      <h3>Ближайшие дедлайны</h3>
+      <a href="{% url 'calendar' %}">Календарь</a>
+    </div>
+    {% for task in metrics.deadlines %}
+      <a class="task-row" href="{% url 'tasks:detail' task.id %}">
+        <span>
+          <strong>{{ task.title }}</strong>
+          <small>{{ task.responsible.profile.full_name|default:"не назначен" }}</small>
+        </span>
+        <time>{{ task.deadline|date:"d.m" }}</time>
+      </a>
+    {% empty %}
+      <p class="empty">Ближайших дедлайнов нет.</p>
+    {% endfor %}
+  </article>
+</section>
+
+<section class="content-grid two">
+  <article class="panel">
+    <h3>Распределение по статусам</h3>
+    <canvas data-chart="doughnut" data-labels="{{ status_labels|join:',' }}" data-values="{{ status_values|join:',' }}"></canvas>
+  </article>
+  <article class="panel ai-panel">
+    <h3>AI-помощник</h3>
+    <p>У команды {{ metrics.total }} задач, {{ metrics.attention }} требуют управленческого внимания. Проверьте просрочки и перегрузку сотрудников перед планёркой.</p>
+    <a class="btn btn-light" href="{% url 'ai:index' %}?question=Кто перегружен на этой неделе?">Спросить AI</a>
+  </article>
+</section>
+{% endblock %}

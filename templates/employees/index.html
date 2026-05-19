@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Сотрудники TTM{% endblock %}
+{% block content %}
+<section class="employee-grid">
+  {% for profile in profiles %}
+    <article class="employee-card">
+      <h3>{{ profile.full_name }}</h3>
+      <p>{{ profile.position }}</p>
+      <span>{{ profile.department.name|default:"Без отдела" }}</span>
+      <div class="metric-row">
+        <strong>{{ profile.total_tasks }}</strong><small>всего</small>
+        <strong>{{ profile.active_tasks }}</strong><small>в работе</small>
+        <strong>{{ profile.overdue_tasks }}</strong><small>просрочено</small>
+      </div>
+      <em class="workload">{{ profile.get_workload_index_display }}</em>
+    </article>
+  {% empty %}
+    <p class="empty">Сотрудники не найдены.</p>
+  {% endfor %}
+</section>
+{% endblock %}

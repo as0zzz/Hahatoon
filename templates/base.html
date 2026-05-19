@@ -1,0 +1,29 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}TTM{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    {% include "partials/sidebar.html" %}
+    <main class="main">
+      {% include "partials/topbar.html" %}
+      {% if messages %}
+        <div class="messages">
+          {% for message in messages %}
+            <div class="message {{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+  <script src="{% static 'js/charts.js' %}"></script>
+  <script src="{% static 'js/kanban.js' %}"></script>
+</body>
+</html>
