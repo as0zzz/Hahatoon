@@ -20,10 +20,12 @@ class Task(models.Model):
 
     class Status(models.TextChoices):
         NEW = "new", "Новая"
+        PLANNED = "planned", "Запланирована"
         IN_PROGRESS = "in_progress", "В работе"
         REVIEW = "review", "На согласовании"
         DONE = "done", "Выполнена"
         OVERDUE = "overdue", "Просрочена"
+        CANCELLED = "cancelled", "Отменена"
 
     class Risk(models.TextChoices):
         LOW = "low", "Низкий"
