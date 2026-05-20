@@ -791,8 +791,11 @@ textarea.form-control { min-height: 112px; resize: vertical; }
 .profile-workspace {
   display: grid;
   grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.profile-workspace .panel {
+  margin-bottom: 0;
 }
 .profile-card {
   display: grid;
