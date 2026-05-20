@@ -12,7 +12,52 @@
   <div class="app-shell">
     {% include "partials/sidebar.html" %}
     <main class="main">
-      {% include "partials/topbar.html" %}
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">TTM</p>
+          <h1>{% block page_title %}{{ title|default:"Рабочая область" }}{% endblock %}</h1>
+        </div>
+        <div class="topbar-actions">
+          {% block topbar_actions %}{% endblock %}
+          {% if user.is_authenticated %}
+            <details class="notifications-menu">
+              <summary aria-label="Уведомления">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22a2.4 2.4 0 0 0 2.3-1.7H9.7A2.4 2.4 0 0 0 12 22Zm7-5-1.8-2.1V10a5.2 5.2 0 0 0-4.1-5.1V3a1.1 1.1 0 1 0-2.2 0v1.9A5.2 5.2 0 0 0 6.8 10v4.9L5 17v1.3h14V17Z"/></svg>
+                {% if unread_notifications_count %}<span>{{ unread_notifications_count }}</span>{% endif %}
+              </summary>
+              <div class="notifications-popover">
+                <div class="popover-head">
+                  <strong>Уведомления</strong>
+                  {% if unread_notifications_count %}
+                    <form method="post" action="{% url 'notifications:read_all' %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                      <button type="submit">Прочитано</button>
+                    </form>
+                  {% endif %}
+                </div>
+                {% for item in recent_notifications|slice:":2" %}
+                  <a class="notification-mini {% if not item.is_read %}unread{% endif %}" href="{% url 'notifications:read' item.id %}">
+                    <span class="notification-dot {{ item.type }}"></span>
+                    <span>
+                      <span class="notif-msg">{{ item.message|truncatechars:100 }}</span>
+                      <em>{{ item.created_at|date:"d.m H:i" }}</em>
+                    </span>
+                  </a>
+                {% empty %}
+                  <p class="empty compact">Новых уведомлений нет.</p>
+                {% endfor %}
+                <a class="popover-link" href="{% url 'notifications:list' %}">Открыть все</a>
+              </div>
+            </details>
+            <a class="user-chip" href="{% url 'tasks:mine' %}">{{ user.profile.full_name|default:user.username }}</a>
+            <form method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button class="btn btn-ghost" type="submit">Выйти</button>
+            </form>
+          {% endif %}
+        </div>
+      </header>
       {% if messages %}
         <div class="messages">
           {% for message in messages %}

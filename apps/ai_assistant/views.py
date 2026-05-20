@@ -36,7 +36,8 @@ def index(request):
 @require_POST
 def ask(request):
     question = request.POST.get("question", "")
-    answer = AIAssistantService().answer(question, request.user)
+    model_name = request.POST.get("model", "")
+    answer = AIAssistantService().answer(question, request.user, model_name=model_name)
     log_action(request.user, "ai_ask", "AI", payload={"question": question[:120]}, request=request)
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
         return JsonResponse({"answer": answer})
@@ -53,7 +54,9 @@ def report(request):
 @login_required
 @require_POST
 def extract_task(request):
-    extracted = AIAssistantService().extract_task(request.POST.get("text", ""))
+    text = request.POST.get("text", "")
+    model_name = request.POST.get("model", "")
+    extracted = AIAssistantService().extract_task(text, model_name=model_name)
     return JsonResponse(extracted)
 
 # Create your views here.

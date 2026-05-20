@@ -24,7 +24,48 @@ def employees(request):
             distinct=True,
         ),
     )
-    return render(request, "employees/index.html", {"profiles": profiles, "title": "Сотрудники"})
+
+    # Search & filters
+    q = request.GET.get("q", "").strip()
+    dept = request.GET.get("department", "")
+    workload = request.GET.get("workload", "")
+    if q:
+        profiles = profiles.filter(Q(full_name__icontains=q) | Q(position__icontains=q))
+    if dept:
+        profiles = profiles.filter(department_id=dept)
+    if workload:
+        profiles = profiles.filter(workload_index=workload)
+
+    context = {
+        "profiles": profiles,
+        "title": "Сотрудники",
+        "departments": Department.objects.all(),
+        "workloads": UserProfile.Workload.choices,
+        "selected": request.GET,
+    }
+    return render(request, "employees/index.html", context)
+
+
+@login_required
+def employee_detail(request, pk):
+    profile = get_object_or_404(
+        UserProfile.objects.select_related("user", "department", "team"),
+        pk=pk,
+    )
+    tasks = Task.objects.filter(responsible=profile.user).select_related("department").order_by("deadline", "-priority")
+
+    total = tasks.count()
+    active = tasks.filter(status__in=[Task.Status.NEW, Task.Status.IN_PROGRESS, Task.Status.REVIEW]).count()
+    done = tasks.filter(status=Task.Status.DONE).count()
+    overdue = tasks.filter(status=Task.Status.OVERDUE).count()
+
+    context = {
+        "profile": profile,
+        "tasks": tasks,
+        "title": profile.full_name,
+        "stats": {"total": total, "active": active, "done": done, "overdue": overdue},
+    }
+    return render(request, "employees/detail.html", context)
 
 
 @login_required
@@ -34,7 +75,17 @@ def departments(request):
         attention_tasks=Count("tasks", filter=Q(tasks__needs_manager_attention=True), distinct=True),
         employees_count=Count("employees", distinct=True),
     )
-    return render(request, "departments/index.html", {"departments": items, "title": "Отделы"})
+
+    q = request.GET.get("q", "").strip()
+    if q:
+        items = items.filter(Q(name__icontains=q) | Q(description__icontains=q))
+
+    context = {
+        "departments": items,
+        "title": "Отделы",
+        "selected": request.GET,
+    }
+    return render(request, "departments/index.html", context)
 
 
 @login_required
@@ -43,4 +94,3 @@ def department_detail(request, pk):
     tasks = department.tasks.select_related("responsible").all()
     return render(request, "departments/detail.html", {"department": department, "tasks": tasks, "title": department.name})
 
-# Create your views here.

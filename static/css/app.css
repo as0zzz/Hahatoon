@@ -124,6 +124,7 @@ button, input, select, textarea { font: inherit; letter-spacing: 0; }
   list-style: none;
   transition: background 0.18s ease;
 }
+.topbar-actions .btn { border-radius: 999px; }
 .notifications-menu summary:hover { background: #f8fbff; }
 .notifications-menu summary::-webkit-details-marker { display: none; }
 .notifications-menu summary svg { width: 20px; height: 20px; fill: var(--blue); }
@@ -216,7 +217,9 @@ button, input, select, textarea { font: inherit; letter-spacing: 0; }
 }
 .btn-primary { background: var(--blue); color: var(--white); }
 .btn-light { background: #eaf5ff; color: var(--blue); }
-.btn-ghost { background: var(--white); color: var(--blue); border: 1px solid #e1e9f4; border-radius: 999px; transition: background 0.18s ease; }
+.btn-ghost { background: var(--white); color: var(--blue); border: 1px solid #e1e9f4; transition: background 0.18s ease; }
+::-webkit-scrollbar { display: none; }
+* { -ms-overflow-style: none; scrollbar-width: none; }
 .btn-ghost:hover { background: #f8fbff; }
 .btn-danger { background: #fff1f1; color: var(--red); }
 .messages { display: grid; gap: 8px; margin-bottom: 16px; }
@@ -249,6 +252,23 @@ button, input, select, textarea { font: inherit; letter-spacing: 0; }
 .content-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .content-grid.three, .employee-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .planning-grid { grid-template-columns: repeat(4, minmax(260px, 1fr)); align-items: start; }
+.planning-grid .panel {
+  max-height: calc(100vh - 200px);
+  display: flex;
+  flex-direction: column;
+}
+.planning-grid .panel h3 { flex-shrink: 0; }
+.planning-grid .panel .task-row,
+.planning-grid .panel .empty { flex-shrink: 0; }
+.planning-grid .panel-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+.planning-grid .panel-scroll::-webkit-scrollbar { width: 6px; }
+.planning-grid .panel-scroll::-webkit-scrollbar-track { background: transparent; }
+.planning-grid .panel-scroll::-webkit-scrollbar-thumb { background: #cdd7e5; border-radius: 999px; }
+.planning-grid .panel-scroll::-webkit-scrollbar-thumb:hover { background: #aab6c8; }
 .kpi-card, .panel, .task-card, .employee-card, .department-card, .settings-card {
   background: var(--white);
   border: 1px solid var(--line);
@@ -438,7 +458,8 @@ textarea.form-control { min-height: 112px; resize: vertical; }
 }
 .ai-query { display: grid; gap: 12px; }
 .ai-query textarea { min-height: 136px; }
-.employee-card, .department-card, .settings-card { padding: 18px; }
+.employee-card, .department-card, .settings-card { padding: 18px; transition: transform .18s ease, box-shadow .18s ease; }
+.employee-card:hover, .department-card:hover { transform: translateY(-3px); box-shadow: 0 18px 42px rgba(2, 15, 82, .12); }
 .employee-card h3, .department-card h3, .settings-card h3 { margin: 0 0 6px; color: var(--ink); }
 .metric-row { 
   display: grid; 
@@ -473,7 +494,23 @@ textarea.form-control { min-height: 112px; resize: vertical; }
 .kanban-cards::-webkit-scrollbar-track { background: transparent; }
 .kanban-cards::-webkit-scrollbar-thumb { background: #cdd7e5; border-radius: 999px; }
 .kanban-cards::-webkit-scrollbar-thumb:hover { background: #aab6c8; }
-.kanban-card { display: grid; gap: 8px; background: var(--white); border-radius: 16px; padding: 14px; margin-bottom: 10px; box-shadow: 0 8px 18px rgba(2, 15, 82, .08); }
+.kanban-card { display: grid; gap: 8px; background: var(--white); border-radius: 16px; padding: 14px; margin-bottom: 10px; box-shadow: 0 8px 18px rgba(2, 15, 82, .08); cursor: grab; transition: box-shadow .18s ease; }
+.kanban-card:hover { box-shadow: 0 12px 28px rgba(2, 15, 82, .14); }
+.kanban-card:active { cursor: grabbing; }
+.kanban-card.dragging { opacity: .35; pointer-events: none; }
+.kanban-column.drag-over {
+  border-color: var(--digital);
+  background: rgba(38, 154, 230, .06);
+  box-shadow: inset 0 0 0 2px rgba(38, 154, 230, .18);
+}
+.kanban-placeholder {
+  height: 6px;
+  margin: 4px 0;
+  border-radius: 999px;
+  background: var(--digital);
+  opacity: .5;
+  transition: opacity .12s ease;
+}
 .calendar-page {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px;
@@ -489,7 +526,7 @@ textarea.form-control { min-height: 112px; resize: vertical; }
 .calendar-workspace { padding: 26px; }
 .calendar-toolbar {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 18px;
   align-items: center;
   margin-bottom: 26px;
@@ -502,7 +539,7 @@ textarea.form-control { min-height: 112px; resize: vertical; }
   height: 50px;
   padding: 0 12px;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 999px;
   background: var(--white);
   box-shadow: 0 10px 24px rgba(2, 15, 82, .06);
   color: #15233d;
@@ -513,7 +550,7 @@ textarea.form-control { min-height: 112px; resize: vertical; }
   place-items: center;
   width: 34px;
   height: 34px;
-  border-radius: 10px;
+  border-radius: 999px;
   color: var(--blue);
   font-size: 24px;
 }
@@ -595,10 +632,16 @@ textarea.form-control { min-height: 112px; resize: vertical; }
 }
 .selected-day-panel {
   overflow: hidden;
+  position: sticky;
+  top: 24px;
+  max-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
 }
 .selected-day-head {
   padding: 26px;
   border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
 }
 .selected-day-head span {
   display: block;
@@ -615,6 +658,7 @@ textarea.form-control { min-height: 112px; resize: vertical; }
   align-items: center;
   gap: 10px;
   padding: 24px 26px 8px;
+  flex-shrink: 0;
 }
 .selected-day-count h3 {
   margin: 0;
@@ -634,7 +678,14 @@ textarea.form-control { min-height: 112px; resize: vertical; }
   display: grid;
   gap: 12px;
   padding: 10px 26px 26px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
+.selected-task-list::-webkit-scrollbar { width: 6px; }
+.selected-task-list::-webkit-scrollbar-track { background: transparent; }
+.selected-task-list::-webkit-scrollbar-thumb { background: #cdd7e5; border-radius: 999px; }
+.selected-task-list::-webkit-scrollbar-thumb:hover { background: #aab6c8; }
 .selected-task {
   display: grid;
   grid-template-columns: 12px minmax(0, 1fr) auto;
@@ -654,6 +705,7 @@ textarea.form-control { min-height: 112px; resize: vertical; }
 .full-width {
   width: calc(100% - 52px);
   margin: 0 26px 26px;
+  flex-shrink: 0;
 }
 .pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin: 32px 0; }
 .pagination a, .pagination span {

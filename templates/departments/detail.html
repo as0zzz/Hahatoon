@@ -1,17 +1,49 @@
 {% extends "base.html" %}
 {% load ttm_tags %}
-{% block title %}{{ department.name }} TTM{% endblock %}
+{% block title %}{{ department.name }} — TTM{% endblock %}
 {% block content %}
-<section class="panel">
-  <h2>{{ department.name }}</h2>
-  <p>{{ department.description }}</p>
-  {% for task in tasks %}
-    <a class="task-row" href="{% url 'tasks:detail' task.id %}">
-      <span><strong>{{ task.title }}</strong><small>{{ task.responsible.profile.full_name|default:"не назначен" }}</small></span>
-      <em class="badge {{ task.status|status_class }}">{{ task.get_status_display }}</em>
-    </a>
-  {% empty %}
-    <p class="empty">У отдела пока нет задач.</p>
-  {% endfor %}
+<section class="detail-layout">
+  <div>
+    <article class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Задачи отдела</h2>
+          <p class="muted">{{ tasks|length }} {{ tasks|length|pluralize:"задача,задачи,задач" }}</p>
+        </div>
+        <a class="btn btn-ghost" href="{% url 'departments:list' %}">← Все отделы</a>
+      </div>
+      {% for task in tasks %}
+        <a class="task-row" href="{% url 'tasks:detail' task.id %}">
+          <span>
+            <strong>{{ task.title }}</strong>
+            <small>{{ task.responsible.profile.full_name|default:"не назначен" }} · {{ task.deadline|date:"d.m.Y"|default:"нет дедлайна" }}</small>
+          </span>
+          <em class="badge {{ task.status|status_class }}">{{ task.get_status_display }}</em>
+        </a>
+      {% empty %}
+        <p class="empty">У отдела пока нет задач.</p>
+      {% endfor %}
+    </article>
+  </div>
+
+  <div class="stack">
+    <article class="panel">
+      <div style="margin-bottom:16px;">
+        <h2 style="margin:0 0 4px;">{{ department.name }}</h2>
+        <p class="muted" style="margin:0;">{{ department.description|default:"Описание отсутствует" }}</p>
+      </div>
+      <div class="detail-grid" style="grid-template-columns:1fr;">
+        <span>Руководитель<strong>{{ department.manager.profile.full_name|default:"Не назначен" }}</strong></span>
+      </div>
+    </article>
+
+    <article class="panel">
+      <h3>Сводка</h3>
+      <div class="detail-grid" style="grid-template-columns:repeat(2,1fr);">
+        <span>Всего задач<strong>{{ tasks|length }}</strong></span>
+        <span>Сотрудников<strong>{{ department.employees.count }}</strong></span>
+      </div>
+    </article>
+  </div>
 </section>
 {% endblock %}

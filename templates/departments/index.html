@@ -1,6 +1,15 @@
 {% extends "base.html" %}
 {% block title %}Отделы TTM{% endblock %}
 {% block content %}
+<section class="panel">
+  <form class="filters" method="get">
+    <input name="q" value="{{ selected.q|default:'' }}" placeholder="Поиск по названию или описанию">
+    <div></div>
+    <div></div>
+    <div></div>
+    <button class="btn btn-light" type="submit">Применить</button>
+  </form>
+</section>
 <section class="content-grid three">
   {% for department in departments %}
     <a class="department-card" href="{% url 'departments:detail' department.id %}">
@@ -13,7 +22,7 @@
       </div>
     </a>
   {% empty %}
-    <p class="empty">Отделы не созданы.</p>
+    <p class="empty">Отделы не найдены.</p>
   {% endfor %}
 </section>
 {% endblock %}

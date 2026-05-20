@@ -99,7 +99,88 @@ def task_create(request):
             messages.success(request, "Задача создана")
             return redirect("tasks:detail", pk=task.pk)
     else:
-        form = TaskForm()
+        initial_data = request.GET.dict()
+        
+        resp_str = initial_data.get("responsible", "").strip()
+        if resp_str:
+            from django.contrib.auth.models import User
+            from django.db.models import Q
+            # Try matching parts of the name
+            parts = resp_str.split()
+            q_objs = Q()
+            for part in parts:
+                q_objs |= Q(first_name__icontains=part) | Q(last_name__icontains=part) | Q(username__icontains=part)
+            user_match = User.objects.filter(q_objs).first()
+            if user_match:
+                initial_data["responsible"] = user_match.id
+            else:
+                initial_data.pop("responsible", None)
+                
+        dept_str = initial_data.get("department", "").strip()
+        if dept_str:
+            from apps.departments.models import Department
+            dept_match = None
+            for word in dept_str.split():
+                if len(word) > 4:
+                    word = word[:4]
+                dept_match = Department.objects.filter(name__icontains=word).first()
+                if dept_match:
+                    break
+            if dept_match:
+                initial_data["department"] = dept_match.id
+            else:
+                initial_data.pop("department", None)
+                
+        team_str = initial_data.get("team", "").strip()
+        if team_str:
+            from apps.departments.models import Team
+            team_match = None
+            for word in team_str.split():
+                if len(word) > 4:
+                    word = word[:4]
+                team_match = Team.objects.filter(name__icontains=word).first()
+                if team_match:
+                    break
+            if team_match:
+                initial_data["team"] = team_match.id
+            else:
+                initial_data.pop("team", None)
+
+        parent_task_str = initial_data.get("parent_task", "").strip()
+        if parent_task_str:
+            from apps.tasks.models import Task
+            task_match = None
+            for word in parent_task_str.split():
+                if len(word) > 4:
+                    word = word[:4]
+                task_match = Task.objects.filter(title__icontains=word).first()
+                if task_match:
+                    break
+            if task_match:
+                initial_data["parent_task"] = task_match.id
+            else:
+                initial_data.pop("parent_task", None)
+
+        watchers_list = request.GET.getlist("watchers")
+        if watchers_list:
+            from django.contrib.auth.models import User
+            from django.db.models import Q
+            resolved = []
+            for w_str in watchers_list:
+                w_str = w_str.strip()
+                if not w_str: continue
+                q_objs = Q()
+                for part in w_str.split():
+                    q_objs |= Q(first_name__icontains=part) | Q(last_name__icontains=part) | Q(username__icontains=part)
+                user_match = User.objects.filter(q_objs).first()
+                if user_match:
+                    resolved.append(user_match.id)
+            if resolved:
+                initial_data["watchers"] = resolved
+            else:
+                initial_data.pop("watchers", None)
+
+        form = TaskForm(initial=initial_data)
     return render(request, "tasks/form.html", {"form": form, "title": "Создание задачи"})
 
 
@@ -199,10 +280,10 @@ def planning(request):
 def kanban(request):
     kanban_statuses = [
         (Task.Status.NEW, "Новая"),
-        (Task.Status.PLANNED, "Запланирована"),
         (Task.Status.IN_PROGRESS, "В работе"),
         (Task.Status.REVIEW, "На согласовании"),
         (Task.Status.DONE, "Выполнена"),
+        (Task.Status.OVERDUE, "Просрочена"),
     ]
     tasks = task_queryset_for_user(request.user).select_related("department", "responsible")
     columns = {status: tasks.filter(status=status) for status, _ in kanban_statuses}

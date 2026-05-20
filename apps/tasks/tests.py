@@ -83,7 +83,7 @@ class TaskWorkflowTests(TestCase):
                 "planning_period": Task.PlanningPeriod.WEEK,
                 "deadline": (timezone.localdate() + timedelta(days=3)).isoformat(),
                 "priority": Task.Priority.HIGH,
-                "status": Task.Status.PLANNED,
+                "status": Task.Status.NEW,
                 "progress": 0,
             },
             follow=True,

@@ -7,11 +7,14 @@
     <div class="calendar-toolbar">
       <div></div>
       <div class="calendar-controls">
-        <a class="calendar-nav-btn" href="?year={{ previous_month.year }}&month={{ previous_month.month }}">‹</a>
+        <a class="calendar-nav-btn" href="?year={{ previous_month.year }}&month={{ previous_month.month }}">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </a>
         <span>{{ month_label }}</span>
-        <a class="calendar-nav-btn" href="?year={{ next_month.year }}&month={{ next_month.month }}">›</a>
+        <a class="calendar-nav-btn" href="?year={{ next_month.year }}&month={{ next_month.month }}">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
       </div>
-      <a class="btn btn-primary" href="{% url 'tasks:create' %}">Новая задача</a>
     </div>
 
     <div class="calendar-weekdays">

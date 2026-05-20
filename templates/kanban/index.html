@@ -3,6 +3,7 @@
 {% block title %}Канбан TTM{% endblock %}
 {% block content %}
 <section class="kanban-board">
+  {% csrf_token %}
   {% for status,label in statuses %}
     <article class="kanban-column" data-status="{{ status }}">
       <h3>{{ label }}</h3>

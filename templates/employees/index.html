@@ -1,9 +1,28 @@
 {% extends "base.html" %}
 {% block title %}Сотрудники TTM{% endblock %}
 {% block content %}
+<section class="panel">
+  <form class="filters" method="get">
+    <input name="q" value="{{ selected.q|default:'' }}" placeholder="Поиск по имени или должности">
+    <select name="department" onchange="this.form.submit()">
+      <option value="">Все отделы</option>
+      {% for dept in departments %}
+        <option value="{{ dept.id }}" {% if selected.department == dept.id|stringformat:"d" %}selected{% endif %}>{{ dept.name }}</option>
+      {% endfor %}
+    </select>
+    <select name="workload" onchange="this.form.submit()">
+      <option value="">Любая загрузка</option>
+      {% for value, label in workloads %}
+        <option value="{{ value }}" {% if selected.workload == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <div></div>
+    <button class="btn btn-light" type="submit">Применить</button>
+  </form>
+</section>
 <section class="employee-grid">
   {% for profile in profiles %}
-    <article class="employee-card">
+    <a class="employee-card" href="{% url 'departments:employee_detail' profile.pk %}">
       <h3>{{ profile.full_name }}</h3>
       <p>{{ profile.position }}</p>
       <span>{{ profile.department.name|default:"Без отдела" }}</span>
@@ -13,7 +32,7 @@
         <strong>{{ profile.overdue_tasks }}</strong><small>просрочено</small>
       </div>
       <em class="workload">{{ profile.get_workload_index_display }}</em>
-    </article>
+    </a>
   {% empty %}
     <p class="empty">Сотрудники не найдены.</p>
   {% endfor %}

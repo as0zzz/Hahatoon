@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load ttm_tags %}
+{% block title %}{{ profile.full_name }} — TTM{% endblock %}
+{% block content %}
+<section class="detail-layout">
+  <div>
+    <article class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Задачи сотрудника</h2>
+          <p class="muted">{{ tasks|length }} {{ tasks|length|pluralize:"задача,задачи,задач" }}</p>
+        </div>
+        <a class="btn btn-ghost" href="{% url 'departments:employees' %}">← Все сотрудники</a>
+      </div>
+      {% for task in tasks %}
+        <a class="task-row" href="{% url 'tasks:detail' task.id %}">
+          <span>
+            <strong>{{ task.title }}</strong>
+            <small>{{ task.department.name|default:"Без отдела" }} · {{ task.deadline|date:"d.m.Y"|default:"нет дедлайна" }}</small>
+          </span>
+          <em class="badge {{ task.status|status_class }}">{{ task.get_status_display }}</em>
+        </a>
+      {% empty %}
+        <p class="empty">У сотрудника нет задач.</p>
+      {% endfor %}
+    </article>
+  </div>
+
+  <div class="stack">
+    <article class="panel">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
+        <div class="avatar">{{ profile.full_name|make_list|first }}</div>
+        <div>
+          <h2 style="margin:0 0 4px;">{{ profile.full_name }}</h2>
+          <p class="muted" style="margin:0;">{{ profile.position }}</p>
+        </div>
+      </div>
+      <div class="detail-grid" style="grid-template-columns:repeat(2,1fr);">
+        <span>Отдел<strong>{{ profile.department.name|default:"Не указан" }}</strong></span>
+        <span>Команда<strong>{{ profile.team.name|default:"Не указана" }}</strong></span>
+        <span>Роль<strong>{{ profile.get_role_display }}</strong></span>
+        <span>Загрузка<strong>{{ profile.get_workload_index_display }}</strong></span>
+      </div>
+    </article>
+
+    <article class="panel">
+      <h3>Статистика</h3>
+      <div class="detail-grid" style="grid-template-columns:repeat(2,1fr);">
+        <span>Всего задач<strong>{{ stats.total }}</strong></span>
+        <span>В работе<strong>{{ stats.active }}</strong></span>
+        <span>Выполнено<strong>{{ stats.done }}</strong></span>
+        <span>Просрочено<strong style="color:var(--red);">{{ stats.overdue }}</strong></span>
+      </div>
+    </article>
+  </div>
+</section>
+{% endblock %}

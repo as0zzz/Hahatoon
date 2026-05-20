@@ -3,11 +3,8 @@
     <p class="eyebrow">TTM</p>
     <h1>{% block page_title %}{{ title|default:"Рабочая область" }}{% endblock %}</h1>
   </div>
-  <form class="topbar-search" method="get" action="{% url 'ai:index' %}">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.8 18a7.2 7.2 0 1 1 5.1-2.1l4.1 4.1-1.4 1.4-4.1-4.1A7.2 7.2 0 0 1 10.8 18Zm0-2a5.2 5.2 0 1 0 0-10.4 5.2 5.2 0 0 0 0 10.4Z"/></svg>
-    <input name="question" placeholder="ИИ поиск по задачам, рискам и загрузке">
-  </form>
   <div class="topbar-actions">
+    {% block topbar_actions %}{% endblock %}
 
     {% if user.is_authenticated %}
       <details class="notifications-menu">

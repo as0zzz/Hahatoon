@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% load ttm_tags %}
 {% block title %}{{ title }} TTM{% endblock %}
+{% block topbar_actions %}
+  <a class="btn btn-primary" href="{% url 'tasks:create' %}">Создать задачу</a>
+{% endblock %}
+
 {% block content %}
 {% if is_mine %}
   <section class="profile-workspace">
@@ -32,10 +36,6 @@
   </section>
 {% endif %}
 <section class="panel">
-  <div class="panel-head">
-    <div></div>
-    <a class="btn btn-primary" href="{% url 'tasks:create' %}">Создать задачу</a>
-  </div>
   <form class="filters task-filters" method="get">
     <input name="q" value="{{ selected.q }}" placeholder="Поиск по задачам">
     <select name="department">

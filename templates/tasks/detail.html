@@ -37,22 +37,18 @@
   </article>
   <aside class="panel">
     <h3>Комментарии</h3>
-    <form method="post" action="{% url 'tasks:add_comment' task.id %}" class="stack">
+    <form method="post" action="{% url 'tasks:add_comment' task.id %}" class="stack" style="margin-bottom: 16px;">
       {% csrf_token %}
       {{ comment_form.text }}
       <button class="btn btn-light" type="submit">Добавить комментарий</button>
     </form>
-    {% for comment in comments %}
-      <div class="timeline-item"><strong>{{ comment.author.profile.full_name|default:comment.author.username }}</strong><p>{{ comment.text }}</p></div>
-    {% empty %}
-      <p class="empty">Комментариев пока нет.</p>
-    {% endfor %}
-    <h3>История изменений</h3>
-    {% for item in history %}
-      <div class="timeline-item"><strong>{{ item.field_name }}</strong><p>{{ item.old_value }} → {{ item.new_value }}</p></div>
-    {% empty %}
-      <p class="empty">История пока пуста.</p>
-    {% endfor %}
+    <div class="comments-scroll" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 4px; padding-bottom: 8px;">
+      {% for comment in comments %}
+        <div class="timeline-item"><strong>{{ comment.author.profile.full_name|default:comment.author.username }}</strong><p>{{ comment.text }}</p></div>
+      {% empty %}
+        <p class="empty">Комментариев пока нет.</p>
+      {% endfor %}
+    </div>
   </aside>
 </section>
 {% endblock %}
