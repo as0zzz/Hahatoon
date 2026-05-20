@@ -1,26 +1,80 @@
 <aside class="sidebar">
-  <a class="brand" href="{% url 'home' %}">
-    {% load static %}
-    <span class="brand-mark"><img src="{% static 'img/ttm-znak_gradient.png' %}" alt=""></span>
-    <span>
-      <strong>Транстелематика</strong>
-      <small>управление задачами</small>
-    </span>
-  </a>
-  <nav class="nav">
-    <a href="{% url 'home' %}" class="{% if request.path == '/' %}active{% endif %}">Главная</a>
-    <a href="{% url 'tasks:mine' %}" class="{% if '/tasks/mine' in request.path %}active{% endif %}">Мои задачи</a>
-    <a href="{% url 'tasks:list' %}" class="{% if '/tasks/' in request.path and '/tasks/mine' not in request.path %}active{% endif %}">Все задачи</a>
-    <a href="{% url 'planning' %}" class="{% if '/planning/' in request.path %}active{% endif %}">Планирование</a>
-    <a href="{% url 'kanban' %}" class="{% if '/kanban/' in request.path %}active{% endif %}">Канбан</a>
-    <a href="{% url 'calendar' %}" class="{% if '/calendar/' in request.path %}active{% endif %}">Календарь</a>
-    <a href="{% url 'dashboards:index' %}" class="{% if '/dashboards/' in request.path %}active{% endif %}">Дашборды</a>
-    <a href="{% url 'ai:index' %}" class="{% if '/ai/' in request.path %}active{% endif %}">AI-помощник</a>
-    <a href="{% url 'departments:employees' %}" class="{% if '/departments/employees/' in request.path %}active{% endif %}">Сотрудники</a>
-    <a href="{% url 'departments:list' %}" class="{% if '/departments/' in request.path and '/employees/' not in request.path %}active{% endif %}">Отделы</a>
-    <a href="{% url 'reports:index' %}" class="{% if '/reports/' in request.path %}active{% endif %}">Отчёты</a>
-    <a href="{% url 'notifications:list' %}" class="{% if '/notifications/' in request.path %}active{% endif %}">Уведомления</a>
-    <a href="{% url 'settings' %}" class="{% if '/settings/' in request.path %}active{% endif %}">Настройки</a>
-    <a href="{% url 'audit:list' %}" class="{% if '/audit/' in request.path %}active{% endif %}">Аудит</a>
-  </nav>
+  <div class="sidebar-scrollable">
+    <a class="brand" href="{% url 'home' %}">
+      {% load static %}
+      <span class="brand-mark"><img src="{% static 'img/ttm-znak_gradient.png' %}" alt=""></span>
+      <span>
+        <strong>Транстелематика</strong>
+        <small>управление задачами</small>
+      </span>
+    </a>
+    <nav class="nav">
+      <a href="{% url 'home' %}" class="{% if request.path == '/' %}active{% endif %}">Главная</a>
+      <a href="{% url 'tasks:mine' %}" class="{% if '/tasks/mine' in request.path %}active{% endif %}">Мои задачи</a>
+      <a href="{% url 'tasks:list' %}" class="{% if '/tasks/' in request.path and '/tasks/mine' not in request.path %}active{% endif %}">Все задачи</a>
+      <a href="{% url 'planning' %}" class="{% if '/planning/' in request.path %}active{% endif %}">Планирование</a>
+      <a href="{% url 'kanban' %}" class="{% if '/kanban/' in request.path %}active{% endif %}">Канбан</a>
+      <a href="{% url 'calendar' %}" class="{% if '/calendar/' in request.path %}active{% endif %}">Календарь</a>
+      <a href="{% url 'dashboards:index' %}" class="{% if '/dashboards/' in request.path %}active{% endif %}">Дашборды</a>
+      <a href="{% url 'ai:index' %}" class="{% if '/ai/' in request.path %}active{% endif %}">AI-помощник</a>
+      <a href="{% url 'departments:employees' %}" class="{% if '/departments/employees/' in request.path %}active{% endif %}">Сотрудники</a>
+      <a href="{% url 'departments:list' %}" class="{% if '/departments/' in request.path and '/employees/' not in request.path %}active{% endif %}">Отделы</a>
+      <a href="{% url 'reports:index' %}" class="{% if '/reports/' in request.path %}active{% endif %}">Отчёты</a>
+      <a href="{% url 'notifications:list' %}" class="{% if '/notifications/' in request.path %}active{% endif %}">Уведомления</a>
+      <a href="{% url 'settings' %}" class="{% if '/settings/' in request.path %}active{% endif %}">Настройки</a>
+      <a href="{% url 'audit:list' %}" class="{% if '/audit/' in request.path %}active{% endif %}">Аудит</a>
+    </nav>
+  </div>
+  
+  {% if user.is_authenticated %}
+  <div class="sidebar-footer">
+    <details class="nl-profile">
+      <summary class="nl-profile-btn">
+        <img src="{% if user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}{% static 'img/ttm-znak_gradient.png' %}{% endif %}" class="nl-avatar" alt="">
+        <div class="nl-info">
+          <strong>{{ user.profile.full_name|default:user.username }}</strong>
+          <span>{{ user.profile.get_role_display|default:"Сотрудник" }}</span>
+        </div>
+        <svg class="nl-chev" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </summary>
+      <div class="nl-menu">
+        <div class="nl-menu-header">
+          <img src="{% if user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}{% static 'img/ttm-znak_gradient.png' %}{% endif %}" class="nl-avatar-lg" alt="">
+          <div class="nl-info-lg">
+            <strong>{{ user.profile.full_name|default:user.username }}</strong>
+            <span>{{ user.profile.get_role_display|default:"Сотрудник" }}</span>
+          </div>
+        </div>
+        <div class="nl-menu-list">
+          <div class="nl-item">
+            <div class="nl-item-left">
+              <span class="nl-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
+              Язык
+            </div>
+            <div class="nl-item-right">Русский <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+          </div>
+          <div class="nl-item">
+            <div class="nl-item-left">
+              <span class="nl-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span>
+              Тема
+            </div>
+            <div class="nl-item-right">Авто <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+          </div>
+
+          <div class="nl-divider"></div>
+
+          <form method="post" action="{% url 'logout' %}" class="nl-logout-form">
+            {% csrf_token %}
+            <button type="submit" class="nl-item nl-logout-btn">
+              <div class="nl-item-left">
+                <span class="nl-icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></span>
+                Выйти
+              </div>
+            </button>
+          </form>
+        </div>
+      </div>
+    </details>
+  </div>
+  {% endif %}
 </aside>
