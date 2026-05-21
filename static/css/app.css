@@ -54,7 +54,7 @@ button, input, select, textarea { font: inherit; letter-spacing: 0; color: var(-
   height: 100vh;
   padding: 22px 16px;
   background: #020f52;
-  color: var(--white);
+  color: #ffffff;
   display: flex;
   flex-direction: column;
 }
