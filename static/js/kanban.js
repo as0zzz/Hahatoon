@@ -113,27 +113,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const targetStatus = column.dataset.status;
       const srcContainer = sourceContainer;
+      const cardToMove = draggedCard;
+      // Capture the element that was after the placeholder so we can insert the card there later
+      const targetNextSibling = placeholder ? placeholder.nextSibling : null;
 
       // Same column, same position — just clean up
       if (srcContainer === cardsContainer && !placeholder) {
         removePlaceholder();
         return;
       }
+      
+      if (srcContainer !== cardsContainer) {
+        const confirmTitle = 'Изменить статус задачи?';
+        const confirmText = 'Вы действительно хотите переместить эту задачу? Это может затронуть процессы других сотрудников.';
+        const isConfirmed = await window.ttmModal.confirm(confirmTitle, confirmText, 'Переместить', 'var(--blue)');
+        if (!isConfirmed) {
+          return;
+        }
+      }
 
-      draggedCard.dataset.justDropped = "1";
-      draggedCard.classList.remove("dragging");
+      cardToMove.dataset.justDropped = "1";
+      cardToMove.classList.remove("dragging");
 
       // Hide empty message in target
       const targetEmpty = cardsContainer.querySelector("p.empty");
       if (targetEmpty) targetEmpty.remove();
 
-      // Insert card at the placeholder position (or at end if no placeholder)
-      if (placeholder && placeholder.parentNode === cardsContainer) {
-        cardsContainer.insertBefore(draggedCard, placeholder);
+      // Insert card at the captured position (or at end if no sibling)
+      if (targetNextSibling && targetNextSibling.parentNode === cardsContainer) {
+        cardsContainer.insertBefore(cardToMove, targetNextSibling);
       } else {
-        cardsContainer.appendChild(draggedCard);
+        cardsContainer.appendChild(cardToMove);
       }
-      removePlaceholder();
+      
+      // Note: we don't call removePlaceholder() here because dragend has already fired during the await and removed it.
 
       // Show empty in source if it's now empty
       if (srcContainer !== cardsContainer &&
@@ -150,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Send to server
       try {
         const body = new URLSearchParams({ status: targetStatus });
-        const response = await fetch(draggedCard.dataset.changeUrl, {
+        const response = await fetch(cardToMove.dataset.changeUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -167,7 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("Kanban drop failed, reverting:", err);
 
         // Revert card to source
-        srcContainer.appendChild(draggedCard);
+        srcContainer.appendChild(cardToMove);
 
         const srcEmpty = srcContainer.querySelector("p.empty");
         if (srcEmpty) srcEmpty.remove();

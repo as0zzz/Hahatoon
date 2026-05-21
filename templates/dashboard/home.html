@@ -64,7 +64,7 @@
     <h3>Распределение по статусам</h3>
     <canvas data-chart="doughnut" data-labels="{{ status_labels|join:',' }}" data-values="{{ status_values|join:',' }}"></canvas>
   </article>
-  <article class="panel ai-panel">
+  <article class="panel ai-panel" style="align-self: start;">
     <h3>AI-помощник</h3>
     <p>У команды {{ metrics.total }} задач, {{ metrics.attention }} требуют управленческого внимания. Проверьте просрочки и перегрузку сотрудников перед планёркой.</p>
     <a class="btn btn-light" href="{% url 'ai:index' %}?question=Кто перегружен на этой неделе?">Спросить AI</a>

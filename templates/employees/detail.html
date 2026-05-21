@@ -10,7 +10,7 @@
           <h2>Задачи сотрудника</h2>
           <p class="muted">{{ tasks|length }} {{ tasks|length|pluralize:"задача,задачи,задач" }}</p>
         </div>
-        <a class="btn btn-ghost" href="{% url 'departments:employees' %}">← Все сотрудники</a>
+        <a class="btn btn-ghost" href="{% url 'employees_root' %}">← Все сотрудники</a>
       </div>
       {% for task in tasks %}
         <a class="task-row" href="{% url 'tasks:detail' task.id %}">

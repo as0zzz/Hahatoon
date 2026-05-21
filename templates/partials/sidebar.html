@@ -11,18 +11,26 @@
     <nav class="nav">
       <a href="{% url 'home' %}" class="{% if request.path == '/' %}active{% endif %}">Главная</a>
       <a href="{% url 'tasks:mine' %}" class="{% if '/tasks/mine' in request.path %}active{% endif %}">Мои задачи</a>
+      {% if user.profile.role != 'employee' %}
       <a href="{% url 'tasks:list' %}" class="{% if '/tasks/' in request.path and '/tasks/mine' not in request.path %}active{% endif %}">Все задачи</a>
+      {% endif %}
       <a href="{% url 'planning' %}" class="{% if '/planning/' in request.path %}active{% endif %}">Планирование</a>
       <a href="{% url 'kanban' %}" class="{% if '/kanban/' in request.path %}active{% endif %}">Канбан</a>
       <a href="{% url 'calendar' %}" class="{% if '/calendar/' in request.path %}active{% endif %}">Календарь</a>
+      {% if user.profile.role != 'employee' %}
       <a href="{% url 'dashboards:index' %}" class="{% if '/dashboards/' in request.path %}active{% endif %}">Дашборды</a>
+      {% endif %}
       <a href="{% url 'ai:index' %}" class="{% if '/ai/' in request.path %}active{% endif %}">AI-помощник</a>
-      <a href="{% url 'departments:employees' %}" class="{% if '/departments/employees/' in request.path %}active{% endif %}">Сотрудники</a>
+      <a href="{% url 'employees_root' %}" class="{% if '/employees/' in request.path %}active{% endif %}">Сотрудники</a>
       <a href="{% url 'departments:list' %}" class="{% if '/departments/' in request.path and '/employees/' not in request.path %}active{% endif %}">Отделы</a>
+      {% if user.profile.role != 'employee' %}
       <a href="{% url 'reports:index' %}" class="{% if '/reports/' in request.path %}active{% endif %}">Отчёты</a>
+      {% endif %}
       <a href="{% url 'notifications:list' %}" class="{% if '/notifications/' in request.path %}active{% endif %}">Уведомления</a>
-      <a href="{% url 'settings' %}" class="{% if '/settings/' in request.path %}active{% endif %}">Настройки</a>
+
+      {% if user.profile.role == 'admin' %}
       <a href="{% url 'audit:list' %}" class="{% if '/audit/' in request.path %}active{% endif %}">Аудит</a>
+      {% endif %}
     </nav>
   </div>
   
@@ -38,13 +46,13 @@
         <svg class="nl-chev" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       </summary>
       <div class="nl-menu">
-        <div class="nl-menu-header">
+        <a href="{% url 'departments:employee_detail' user.profile.id %}" class="nl-menu-header" style="text-decoration: none;">
           <img src="{% if user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}{% static 'img/ttm-znak_gradient.png' %}{% endif %}" class="nl-avatar-lg" alt="">
           <div class="nl-info-lg">
             <strong>{{ user.profile.full_name|default:user.username }}</strong>
             <span>{{ user.profile.get_role_display|default:"Сотрудник" }}</span>
           </div>
-        </div>
+        </a>
         <div class="nl-menu-list">
           <div class="nl-item">
             <div class="nl-item-left">
@@ -53,25 +61,25 @@
             </div>
             <div class="nl-item-right">Русский <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
           </div>
-          <div class="nl-item">
+          <div class="nl-item" onclick="toggleTheme()" id="theme-toggle-btn" style="cursor: pointer;">
             <div class="nl-item-left">
               <span class="nl-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span>
               Тема
             </div>
-            <div class="nl-item-right">Авто <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <div class="nl-item-right"><span id="theme-label">Авто</span> <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
           </div>
 
           <div class="nl-divider"></div>
 
-          <form method="post" action="{% url 'logout' %}" class="nl-logout-form">
+          <form id="logout-form" method="post" action="{% url 'logout' %}" style="display:none;">
             {% csrf_token %}
-            <button type="submit" class="nl-item nl-logout-btn">
-              <div class="nl-item-left">
-                <span class="nl-icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></span>
-                Выйти
-              </div>
-            </button>
           </form>
+          <div class="nl-item" style="cursor: pointer; color: #fca5a5;" onclick="document.getElementById('logout-form').submit()">
+            <div class="nl-item-left" style="color: inherit;">
+              <span class="nl-icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+              Выйти
+            </div>
+          </div>
         </div>
       </div>
     </details>

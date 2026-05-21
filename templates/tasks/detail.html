@@ -29,7 +29,7 @@
         <select name="status" class="form-control" style="width: auto; min-width: 220px; margin: 0;">{% for value,label in task.Status.choices %}<option value="{{ value }}" {% if task.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
         <button class="btn btn-primary" type="submit" style="white-space: nowrap;">Обновить статус</button>
       </form>
-      <form method="post" action="{% url 'tasks:delete' task.id %}" style="margin: 0;">
+      <form method="post" action="{% url 'tasks:delete' task.id %}" style="margin: 0;" onsubmit="return confirmTaskDelete(event, this);">
         {% csrf_token %}
         <button class="btn btn-danger" type="submit" style="white-space: nowrap;">Удалить задачу</button>
       </form>
@@ -51,4 +51,13 @@
     </div>
   </aside>
 </section>
+
+<script>
+  async function confirmTaskDelete(e, form) {
+    e.preventDefault();
+    if (await window.ttmModal.confirm('Удалить задачу', 'Вы уверены, что хотите удалить эту задачу? Это действие нельзя отменить.')) {
+      form.submit();
+    }
+  }
+</script>
 {% endblock %}

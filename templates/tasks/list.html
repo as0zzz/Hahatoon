@@ -71,9 +71,9 @@
       </thead>
       <tbody>
         {% for task in tasks %}
-          <tr>
+          <tr onclick="window.location='{% url 'tasks:detail' task.id %}'" style="cursor: pointer;">
             <td>
-              <a class="table-title" href="{% url 'tasks:detail' task.id %}">{{ task.title }}</a>
+              <strong class="table-title">{{ task.title }}</strong>
               <small>{{ task.description|default:"Описание не заполнено"|truncatechars:110 }}</small>
             </td>
             <td>{{ task.department.name|default:"Без отдела" }}</td>

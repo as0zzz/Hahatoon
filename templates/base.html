@@ -6,7 +6,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}TTM{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'css/app.css' %}?v=9">
+  <link rel="stylesheet" href="{% static 'css/modal.css' %}?v=1">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const themes = ['auto', 'light', 'dark'];
+    const themeLabels = {'auto': 'Авто', 'light': 'Светлая', 'dark': 'Тёмная'};
+    let currentTheme = localStorage.getItem('ttm_theme') || 'auto';
+    
+    function applyTheme(theme) {
+      if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
+    }
+    
+    function toggleTheme() {
+      let idx = themes.indexOf(currentTheme);
+      currentTheme = themes[(idx + 1) % themes.length];
+      localStorage.setItem('ttm_theme', currentTheme);
+      applyTheme(currentTheme);
+      
+      const label = document.getElementById('theme-label');
+      if (label) label.textContent = themeLabels[currentTheme];
+    }
+    
+    // Apply initially
+    applyTheme(currentTheme);
+    
+    // Listen for system changes if auto
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (currentTheme === 'auto') applyTheme('auto');
+    });
+    
+    // Set label on load
+    document.addEventListener('DOMContentLoaded', () => {
+      const label = document.getElementById('theme-label');
+      if (label) label.textContent = themeLabels[currentTheme];
+    });
+  </script>
 </head>
 <body>
   <div class="app-shell">
@@ -20,10 +58,7 @@
         <div class="topbar-actions">
           {% block topbar_actions %}{% endblock %}
           {% if user.is_authenticated %}
-            <div class="topbar-search">
-              <svg viewBox="0 0 24 24"><path d="M10 2a8 8 0 0 1 6.32 12.9l4.39 4.39a1 1 0 0 1-1.42 1.42l-4.39-4.39A8 8 0 1 1 10 2zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12z"/></svg>
-              <input type="text" placeholder="Поиск по задачам и отчетам...">
-            </div>
+
             <details class="notifications-menu">
               <summary aria-label="Уведомления">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22a2.4 2.4 0 0 0 2.3-1.7H9.7A2.4 2.4 0 0 0 12 22Zm7-5-1.8-2.1V10a5.2 5.2 0 0 0-4.1-5.1V3a1.1 1.1 0 1 0-2.2 0v1.9A5.2 5.2 0 0 0 6.8 10v4.9L5 17v1.3h14V17Z"/></svg>
@@ -63,6 +98,7 @@
     </main>
   </div>
   <script src="{% static 'js/charts.js' %}"></script>
-  <script src="{% static 'js/kanban.js' %}"></script>
+  <script src="{% static 'js/modal.js' %}"></script>
+  <script src="/static/js/kanban.js?v=2.0.1"></script>
 </body>
 </html>

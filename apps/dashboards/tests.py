@@ -62,6 +62,6 @@ class MainPagesSmokeTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Все задачи")
-        self.assertContains(response, "Фильтры")
+        self.assertContains(response, "Применить")
 
 # Create your tests here.

@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import include, path
 
-from apps.accounts.views import settings_view, test_notification
+
 from apps.dashboards.views import home
 from apps.departments.views import employees
 from apps.tasks.views import calendar, kanban, planning
@@ -36,8 +36,7 @@ urlpatterns = [
     path("employees/", employees, name="employees_root"),
     path("departments/", include("apps.departments.urls")),
     path("reports/", include("apps.reports.urls")),
-    path("settings/", settings_view, name="settings"),
-    path("settings/test-notification/", test_notification, name="test_notification"),
+
     path("notifications/", include("apps.notifications.urls")),
     path("audit/", include("apps.audit.urls")),
     path('admin/', admin.site.urls),

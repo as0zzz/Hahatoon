@@ -8,7 +8,7 @@
   height: calc(100vh - 120px);
   max-width: 1000px;
   margin: 0 auto;
-  background: #ffffff;
+  background: var(--white);
   border-radius: 24px;
   box-shadow: 0 16px 42px rgba(2, 15, 82, .06);
   overflow: hidden;
@@ -16,7 +16,7 @@
 .chat-history {
   flex-grow: 1;
   overflow-y: auto;
-  padding: 32px;
+  padding: 24px 32px 32px 32px;
   display: flex;
   flex-direction: column;
   gap: 32px;
@@ -31,15 +31,15 @@
 .avatar {
   width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-weight: bold; font-size: 13px; flex-shrink: 0;
 }
-.avatar.user { background: #e1e9f4; color: var(--ink); }
-.avatar.ai { background: linear-gradient(135deg, var(--blue), var(--digital)); color: #fff; }
+.avatar.user { background: var(--line); color: var(--ink); }
+.avatar.ai { background: var(--blue) url("/static/img/ai-avatar.png") center/cover no-repeat; color: transparent; font-size: 0; }
 .bubble {
   font-size: 15px;
   line-height: 1.6;
   max-width: 85%;
 }
 .message-row.user .bubble {
-  background: #f0f4f9;
+  background: var(--body-bg2);
   padding: 12px 20px;
   border-radius: 20px;
   color: var(--ink);
@@ -53,17 +53,17 @@
 .input-area {
   padding: 0 32px 32px 32px;
   position: relative;
-  background: #ffffff;
+  background: var(--white);
 }
 .chat-input-wrapper {
-  background: #f0f4f9;
+  background: var(--body-bg1);
   border-radius: 28px;
   display: flex;
   flex-direction: column;
   transition: background 0.3s;
 }
 .chat-input-wrapper:focus-within {
-  background: #e9eef6;
+  background: var(--body-bg2);
 }
 
 /* Selected Tools */
@@ -80,8 +80,8 @@
   font-size: 13px;
   font-weight: 500;
   padding: 6px 12px;
-  background: #fff;
-  border: 1px solid #dce4ef;
+  background: var(--white);
+  border: 1px solid var(--line);
   border-radius: 12px;
   color: var(--blue);
   box-shadow: 0 2px 8px rgba(0,0,0,0.03);
@@ -105,14 +105,14 @@
   border-radius: 50%;
   border: none;
   background: transparent;
-  color: #444746;
+  color: var(--ink);
   display: grid;
   place-items: center;
   cursor: pointer;
   transition: background 0.2s;
   flex-shrink: 0;
 }
-.plus-btn:hover { background: rgba(0,0,0,0.05); }
+.plus-btn:hover { background: var(--line); }
 
 .chat-textarea {
   flex-grow: 1;
@@ -131,7 +131,7 @@
   outline: none !important;
   box-shadow: none !important;
 }
-.chat-textarea::placeholder { color: #747775; }
+.chat-textarea::placeholder { color: var(--muted); }
 
 /* Right Actions */
 .right-actions {
@@ -146,7 +146,7 @@
   gap: 6px;
   border: none;
   background: transparent;
-  color: #444746;
+  color: var(--ink);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -155,13 +155,13 @@
   transition: background 0.2s;
   white-space: nowrap;
 }
-.model-btn:hover { background: rgba(0,0,0,0.05); }
+.model-btn:hover { background: var(--line); }
 .send-btn {
   width: 40px; height: 40px;
   border-radius: 50%;
   border: none;
-  background: #e9eef6;
-  color: #aeb4be;
+  background: var(--line);
+  color: var(--muted);
   display: grid;
   place-items: center;
   cursor: not-allowed;
@@ -183,7 +183,7 @@
   position: absolute;
   bottom: calc(100% + 12px);
   left: 0;
-  background: #fff;
+  background: var(--white);
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.12);
   min-width: 260px;
@@ -211,7 +211,7 @@
   align-items: center;
   gap: 10px;
 }
-.dropdown-menu a:hover { background: #f0f4f9; }
+.dropdown-menu a:hover { background: var(--line); }
 .dropdown-menu a svg { opacity: 0.6; }
 
 /* Hide global messages on AI page to prevent layout break */
@@ -238,21 +238,283 @@
   0%, 80%, 100% { transform: scale(0.5); opacity: 0.3; }
   40% { transform: scale(1.2); opacity: 1; }
 }
+
+/* Neverlose Style History Dropdown */
+.ai-chat-header {
+  padding: 24px 32px 24px 32px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  z-index: 10;
+}
+.nl-dropdown-container {
+  position: relative;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+.nl-new-chat-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--line);
+  color: var(--ink);
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 100%;
+}
+.nl-new-chat-btn:hover { background: var(--blue); color: var(--white); }
+.nl-dropdown-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--white);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px var(--shadow-sm);
+}
+.nl-dropdown-btn:hover {
+  background: var(--body-bg2);
+  border-color: var(--blue);
+}
+.nl-dropdown-btn svg { opacity: 0.9; }
+.nl-chevron {
+  margin-left: 12px;
+  transition: transform 0.2s;
+  color: var(--muted);
+}
+.nl-dropdown-container.open .nl-chevron { transform: rotate(180deg); }
+
+.nl-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 340px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  padding: 16px;
+  display: none;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 200;
+  color: var(--ink);
+}
+.nl-dropdown-container.open .nl-dropdown-menu {
+  display: flex;
+  animation: nlFadeIn 0.2s ease-out;
+}
+@keyframes nlFadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.ai-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.nl-chat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.nl-chat-title { font-size: 14px; font-weight: 500; color: var(--ink); }
+.nl-chat-date { font-size: 12px; color: var(--muted); }
+.nl-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink); 
+}
+.nl-title svg {
+  color: var(--blue);
+}
+.nl-actions { display: flex; gap: 4px; }
+.nl-icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted-dark);
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+.nl-icon-btn:hover {
+  background: var(--line);
+  color: var(--ink);
+}
+.nl-chat-actions button:hover {
+  background: var(--line);
+  color: var(--ink);
+}
+.nl-chat-actions .del-btn:hover {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+.nl-search-box {
+  display: flex;
+  align-items: center;
+  background: var(--body-bg1);
+  border-radius: 10px;
+  padding: 8px 14px;
+  gap: 10px;
+  border: 1px solid transparent;
+}
+.nl-search-box svg { color: var(--muted-dark); flex-shrink: 0; }
+.nl-search-box input {
+  background: transparent;
+  border: none;
+  color: var(--ink);
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+}
+.nl-search-box input::placeholder { color: var(--muted-dark); }
+.nl-chats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 236px;
+  overflow-y: auto;
+  margin-right: -8px;
+  padding-right: 8px;
+  scrollbar-width: none;
+}
+.nl-chats-list::-webkit-scrollbar { display: none; }
+.nl-chat-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+.nl-chat-item:hover { background: var(--line); }
+.nl-chat-item.active {
+  border-color: var(--blue);
+  background: var(--line);
+}
+.nl-chat-name {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 12px;
+  color: var(--ink);
+}
+.nl-chat-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  color: var(--muted-dark);
+}
+.nl-chat-actions svg {
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.nl-chat-actions svg:hover {
+  color: var(--blue);
+}
+.nl-chat-item:hover .nl-chat-actions, .nl-chat-item.active .nl-chat-actions {
+  opacity: 1;
+}
 </style>
 
 <div class="ai-chat-container">
-  <div class="chat-history" id="chatHistory">
-    <!-- Стартовое сообщение -->
-    <div class="message-row ai">
-      <div class="avatar ai">AI</div>
-      <div class="bubble">
-        Привет! Я AI-аналитик системы TTM. Чем могу помочь сегодня?<br><br>
-        <strong>💡 Инсайты:</strong><br>
-        {% for insight in insights %}
-          • {{ insight|linebreaksbr }}<br>
-        {% endfor %}
+  <div class="ai-chat-header">
+    <div class="nl-dropdown-container" id="nlDropdownContainer">
+      <button class="nl-dropdown-btn" onclick="toggleNlDropdown(event)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--blue);"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        <span class="nl-dropdown-text">{{ active_chat.title }}</span>
+        <svg class="nl-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </button>
+
+      <div class="nl-dropdown-menu" id="nlDropdownMenu">
+        <div class="ai-history-header">
+          <span class="nl-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            История чатов
+          </span>
+          <div class="nl-actions">
+            <button class="nl-icon-btn" title="Архив">
+               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8"></path><polyline points="1 3 23 3 23 8 1 8 1 3"></polyline><path d="M10 12h4"></path></svg>
+            </button>
+            <button class="nl-icon-btn" title="Удалить все" onclick="deleteAllChats()">
+               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </button>
+            <button class="nl-icon-btn" title="Новый чат" style="color: var(--blue);" onclick="createNewChat()">
+               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="nl-search-box">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" placeholder="Поиск чата">
+          <button class="nl-icon-btn" style="width: auto; height: auto;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+          </button>
+        </div>
+
+        <div class="nl-chats-list">
+          {% for chat in chats %}
+          <div class="nl-chat-item {% if chat.id == active_chat.id %}active{% endif %}" onclick="selectChat(this)" data-id="{{ chat.id }}">
+            <span class="nl-chat-name">{{ chat.title }}</span>
+            <div class="nl-chat-actions">
+              <svg onclick="renameChat(event, this)" title="Переименовать" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              <svg onclick="deleteChat(event, this)" title="Удалить" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
       </div>
     </div>
+  </div>
+
+  <div class="chat-history" id="chatHistory">
+    <!-- Стартовое сообщение -->
+    <div class="message-row ai" id="insightsBlock">
+      <div class="avatar ai">AI</div>
+      <div class="bubble">
+        Привет! Я AI-помощник системы TTM. Чем могу помочь сегодня?
+      </div>
+    </div>
+    {% if question and answer %}
+    <div class="message-row user">
+      <div class="avatar user">Вы</div>
+      <div class="bubble">{{ question|linebreaksbr }}</div>
+    </div>
+    <div class="message-row ai">
+      <div class="avatar ai">AI</div>
+      <div class="bubble">{{ answer|linebreaksbr }}</div>
+    </div>
+    {% endif %}
+    {% for msg in chat_messages %}
+    <div class="message-row {{ msg.role }}">
+      <div class="avatar {{ msg.role }}">{% if msg.role == 'ai' %}AI{% else %}Вы{% endif %}</div>
+      <div class="bubble">{{ msg.content|linebreaksbr }}</div>
+    </div>
+    {% endfor %}
   </div>
 
   <div class="input-area">
@@ -275,10 +537,7 @@
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
               Сформировать отчет
             </a>
-            <a href="#" onclick="selectTool('overdue', 'Показать просрочки')">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-              Показать просрочки
-            </a>
+
           </div>
         </div>
         
@@ -316,8 +575,7 @@
 
   const icons = {
     nlp: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>`,
-    report: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>`,
-    overdue: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`
+    report: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>`
   };
 
   // Авторесайз текстареа
@@ -336,13 +594,138 @@
     if (!e.target.closest('.dropdown')) {
       document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
     }
+
+    if (!e.target.closest('.nl-dropdown-container')) {
+      document.getElementById('nlDropdownContainer')?.classList.remove('open');
+    }
   });
+
+  function toggleNlDropdown(e) {
+    e.preventDefault();
+    document.getElementById('nlDropdownContainer').classList.toggle('open');
+  }
+
+  let activeChatId = "{{ active_chat.id }}";
+
+  async function selectChat(el) {
+    document.querySelectorAll('.nl-chat-item').forEach(item => item.classList.remove('active'));
+    el.classList.add('active');
+    activeChatId = el.getAttribute('data-id');
+    
+    // update button text
+    const chatName = el.querySelector('.nl-chat-name').innerText;
+    document.querySelector('.nl-dropdown-text').innerText = chatName;
+    
+    // hide dropdown
+    document.getElementById('nlDropdownContainer').classList.remove('open');
+    
+    try {
+      const res = await fetch(`/ai/chat/${activeChatId}/messages/`);
+      const data = await res.json();
+      
+      const insightsHtml = document.getElementById('insightsBlock').outerHTML;
+      chatHistory.innerHTML = insightsHtml;
+      
+      data.messages.forEach(m => {
+        appendMessage(m.role, m.content);
+      });
+    } catch (e) { console.error(e); }
+  }
 
   function toggleMenu(id) {
     document.querySelectorAll('.dropdown-menu').forEach(m => {
       if(m.id !== id) m.classList.remove('show');
     });
     document.getElementById(id).classList.toggle('show');
+  }
+
+  // localStorage logic removed to use Django API.
+
+  async function createNewChat() {
+    try {
+      const fd = new FormData();
+      fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+      const res = await fetch("{% url 'ai:create_chat' %}", { method: "POST", body: fd });
+      const data = await res.json();
+      
+      activeChatId = data.id;
+      
+      const list = document.querySelector('.nl-chats-list');
+      document.querySelectorAll('.nl-chat-item').forEach(item => item.classList.remove('active'));
+      
+      const newItem = document.createElement('div');
+      newItem.className = 'nl-chat-item active';
+      newItem.setAttribute('onclick', 'selectChat(this)');
+      newItem.setAttribute('data-id', data.id);
+      newItem.innerHTML = `
+        <span class="nl-chat-name">${data.title}</span>
+        <div class="nl-chat-actions">
+          <svg onclick="renameChat(event, this)" title="Переименовать" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          <svg onclick="deleteChat(event, this)" title="Удалить" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        </div>
+      `;
+      list.prepend(newItem);
+      
+      document.querySelector('.nl-dropdown-text').innerText = data.title;
+      document.getElementById('nlDropdownContainer').classList.remove('open');
+      
+      const insightsHtml = document.getElementById('insightsBlock').outerHTML;
+      chatHistory.innerHTML = insightsHtml;
+    } catch(e) { console.error(e); }
+  }
+
+  async function deleteChat(e, btn) {
+    e.stopPropagation();
+    if (await window.ttmModal.confirm('Удалить чат', 'Вы уверены, что хотите удалить этот чат? Это действие нельзя отменить.')) {
+      const item = btn.closest('.nl-chat-item');
+      const id = item.getAttribute('data-id');
+      
+      try {
+        const fd = new FormData();
+        fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        await fetch(`/ai/chat/${id}/delete/`, { method: "POST", body: fd });
+        
+        item.remove();
+        const list = document.querySelector('.nl-chats-list');
+        if (list.children.length > 0) {
+          if (item.classList.contains('active')) {
+             selectChat(list.firstElementChild);
+          }
+        } else {
+          createNewChat();
+        }
+      } catch (e) { console.error(e); }
+    }
+  }
+
+  async function deleteAllChats() {
+    if (await window.ttmModal.confirm('Удалить все чаты', 'Вы уверены, что хотите удалить все чаты? (Только визуально, для полного удаления обновите страницу)', 'Удалить всё')) {
+      document.querySelector('.nl-chats-list').innerHTML = '';
+      chatHistory.innerHTML = '';
+      createNewChat();
+    }
+  }
+
+  async function renameChat(e, btn) {
+    e.stopPropagation();
+    const item = btn.closest('.nl-chat-item');
+    const id = item.getAttribute('data-id');
+    const nameSpan = item.querySelector('.nl-chat-name');
+    const newName = await window.ttmModal.prompt('Переименовать чат', nameSpan.innerText);
+    
+    if (newName && newName.trim()) {
+      const title = newName.trim();
+      nameSpan.innerText = title;
+      if (item.classList.contains('active')) {
+        document.querySelector('.nl-dropdown-text').innerText = title;
+      }
+      try {
+        const fd = new FormData();
+        fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        fd.append('title', title);
+        await fetch(`/ai/chat/${id}/rename/`, { method: "POST", body: fd });
+      } catch (e) { console.error(e); }
+    }
   }
 
   function selectModel(modelName) {
@@ -400,13 +783,15 @@
     let text = chatInput.value.trim();
     if (!text && !activeTool) return;
 
-    // Если выбран инструмент, добавляем его описание к тексту для истории
     let displayMessage = text;
-    if (activeTool === 'report') displayMessage = `Сформируй недельный отчет по рискам. ${text}`.trim();
-    if (activeTool === 'overdue') displayMessage = `Какие задачи просрочены? ${text}`.trim();
-    if (activeTool === 'nlp') displayMessage = `[Распознавание задачи] ${text}`;
+    
+    if (activeTool === 'nlp') {
+        displayMessage = `[Распознавание задачи] ${text}`;
+    } else if (!text && activeTool === 'report') {
+        displayMessage = 'Сформировать отчет';
+    }
 
-    appendMessage('user', displayMessage || (activeTool === 'report' ? 'Сформировать отчет' : 'Показать просрочки'));
+    appendMessage('user', displayMessage);
     
     const currentTool = activeTool; // Сохраняем перед очисткой
     chatInput.value = '';
@@ -422,6 +807,7 @@
       
       const selectedModel = document.getElementById('currentModel').innerText;
       formData.append('model', selectedModel);
+      formData.append('chat_id', activeChatId);
 
       let url = "{% url 'ai:ask' %}";
       let requestText = displayMessage;
@@ -469,7 +855,18 @@
           window.location.href = `{% url 'tasks:create' %}?${params.toString()}`;
         }, 1200);
       } else {
-        appendMessage('ai', data.answer);
+        if (currentTool === 'report') {
+            const isErrorOrOffTopic = /ошибк|не могу|помочь только|к сожалению|не связан|только на вопросы|извините|не удал|не располагаю/i.test(data.answer);
+            if (isErrorOrOffTopic) {
+                appendMessage('ai', data.answer);
+            } else {
+                const excelUrl = `{% url 'ai:export_excel' %}?q=${encodeURIComponent(requestText)}`;
+                const answerWithBtn = data.answer + `<br><br><a href="${excelUrl}" style="display:inline-flex; align-items:center; gap:6px; padding:8px 14px; background:var(--blue); color:#fff; text-decoration:none; border-radius:8px; font-weight:500; font-size:14px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Скачать в Excel</a>`;
+                appendMessage('ai', answerWithBtn);
+            }
+        } else {
+            appendMessage('ai', data.answer);
+        }
       }
       
     } catch (err) {
