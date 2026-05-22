@@ -28,22 +28,90 @@ document.addEventListener("DOMContentLoaded", () => {
   const d = window.__dashData;
   if (!d) return;
 
+  const initScrollableChart = (container, count, maxVisible = 7) => {
+    if (!container) return;
+    if (count > maxVisible) {
+      const wrapper = container.parentElement;
+      const updateWidth = () => {
+        const ww = wrapper.clientWidth;
+        if (ww > 0) {
+          const w = ((ww / maxVisible) * count) + "px";
+          container.style.width = w;
+          container.style.minWidth = w;
+        }
+      };
+      updateWidth();
+      window.addEventListener("resize", updateWidth);
+      setTimeout(updateWidth, 100);
+    } else {
+      container.style.width = "100%";
+      container.style.minWidth = "100%";
+    }
+  };
+
   // 1. Dept Efficiency Stacked Bar
   const ctxDeptEff = document.getElementById("chart-dept-efficiency");
   if (ctxDeptEff && d.deptEfficiency) {
-    new Chart(ctxDeptEff, {
+    const container = document.getElementById("dept-chart-container");
+    if (container && d.deptEfficiency.labels) {
+      initScrollableChart(container, d.deptEfficiency.labels.length);
+    }
+
+    const deptChart = new Chart(ctxDeptEff, {
       type: "bar",
       data: d.deptEfficiency,
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { position: "bottom" } },
+        plugins: { legend: { display: false } },
         scales: {
-          x: { stacked: true, grid: { color: "#f0f4fa" } },
+          x: { 
+            stacked: true, 
+            grid: { color: "#f0f4fa" },
+            ticks: {
+              maxRotation: 0,
+              minRotation: 0,
+              autoSkip: false,
+              callback: function(val) {
+                const label = this.getLabelForValue(val);
+                return (typeof label === 'string' && label.includes(' ') && label.length > 10) ? label.split(' ') : label;
+              }
+            }
+          },
           y: { stacked: true, beginAtZero: true, grid: { color: "#f0f4fa" }, ticks: { precision: 0 } }
         }
       }
     });
+
+    const legendContainer = document.getElementById("dept-efficiency-legend");
+    if (legendContainer && d.deptEfficiency.datasets) {
+      d.deptEfficiency.datasets.forEach((ds, i) => {
+        const item = document.createElement("div");
+        item.className = "chart-custom-legend-item";
+        
+        const box = document.createElement("span");
+        box.className = "chart-custom-legend-color";
+        box.style.backgroundColor = ds.backgroundColor;
+        
+        const text = document.createElement("span");
+        text.textContent = ds.label;
+        
+        item.onclick = () => {
+          const isHidden = !deptChart.isDatasetVisible(i);
+          if (isHidden) {
+            deptChart.show(i);
+            item.style.opacity = 1;
+          } else {
+            deptChart.hide(i);
+            item.style.opacity = 0.5;
+          }
+        };
+        
+        item.appendChild(box);
+        item.appendChild(text);
+        legendContainer.appendChild(item);
+      });
+    }
   }
 
   // Helper for Doughnut with click navigation
@@ -112,6 +180,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // 5. Dept Progress Horizontal Bar
   const ctxDeptProg = document.getElementById("chart-dept-progress");
   if (ctxDeptProg && d.deptProgressLabels && d.deptProgressLabels.length) {
+    const container = document.getElementById("dept-progress-container");
+    if (container && d.deptProgressLabels) {
+      initScrollableChart(container, d.deptProgressLabels.length, 6);
+    }
     new Chart(ctxDeptProg, {
       type: "bar",
       data: {
@@ -124,7 +196,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }]
       },
       options: {
-        indexAxis: "y",
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
@@ -136,8 +207,19 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         },
         scales: {
-          x: { max: 100, beginAtZero: true, grid: { color: "#f0f4fa" } },
-          y: { grid: { display: false } }
+          y: { max: 100, beginAtZero: true, grid: { color: "#f0f4fa" } },
+          x: { 
+            grid: { display: false }, 
+            ticks: { 
+              autoSkip: false,
+              maxRotation: 0,
+              minRotation: 0,
+              callback: function(val) {
+                const label = this.getLabelForValue(val);
+                return (typeof label === 'string' && label.includes(' ') && label.length > 10) ? label.split(' ') : label;
+              }
+            } 
+          }
         }
       }
     });
@@ -146,6 +228,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // 6. Overdue Dept Horizontal Bar
   const ctxOverdue = document.getElementById("chart-overdue-dept");
   if (ctxOverdue && d.overdueDeptLabels && d.overdueDeptLabels.length) {
+    const container = document.getElementById("overdue-dept-container");
+    if (container && d.overdueDeptLabels) {
+      initScrollableChart(container, d.overdueDeptLabels.length, 6);
+    }
     new Chart(ctxOverdue, {
       type: "bar",
       data: {
@@ -158,13 +244,23 @@ document.addEventListener("DOMContentLoaded", () => {
         }]
       },
       options: {
-        indexAxis: "y",
         responsive: true,
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          x: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: "#f0f4fa" } },
-          y: { grid: { display: false } }
+          y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: "#f0f4fa" } },
+          x: { 
+            grid: { display: false }, 
+            ticks: { 
+              autoSkip: false,
+              maxRotation: 0,
+              minRotation: 0,
+              callback: function(val) {
+                const label = this.getLabelForValue(val);
+                return (typeof label === 'string' && label.includes(' ') && label.length > 10) ? label.split(' ') : label;
+              }
+            } 
+          }
         }
       }
     });

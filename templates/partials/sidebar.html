@@ -9,27 +9,55 @@
       </span>
     </a>
     <nav class="nav">
-      <a href="{% url 'home' %}" class="{% if request.path == '/' %}active{% endif %}">Главная</a>
-      <a href="{% url 'tasks:mine' %}" class="{% if '/tasks/mine' in request.path %}active{% endif %}">Мои задачи</a>
+      <a href="{% url 'home' %}" class="{% if request.path == '/' %}active{% endif %}">
+        <img src="{% static 'img/sidebar_icons/Главная-страница.png' %}" class="nav-icon" alt="">Главная
+      </a>
+      <a href="{% url 'tasks:mine' %}" class="{% if '/tasks/mine' in request.path %}active{% endif %}">
+        <img src="{% static 'img/sidebar_icons/Папка.png' %}" class="nav-icon" alt="">Мои задачи
+      </a>
       {% if user.profile.role != 'employee' %}
-      <a href="{% url 'tasks:list' %}" class="{% if '/tasks/' in request.path and '/tasks/mine' not in request.path %}active{% endif %}">Все задачи</a>
+      <a href="{% url 'tasks:list' %}" class="{% if '/tasks/' in request.path and '/tasks/mine' not in request.path %}active{% endif %}">
+        <img src="{% static 'img/sidebar_icons/Все-задачи.png' %}" class="nav-icon" alt="">Все задачи
+      </a>
       {% endif %}
-      <a href="{% url 'planning' %}" class="{% if '/planning/' in request.path %}active{% endif %}">Планирование</a>
-      <a href="{% url 'kanban' %}" class="{% if '/kanban/' in request.path %}active{% endif %}">Канбан</a>
-      <a href="{% url 'calendar' %}" class="{% if '/calendar/' in request.path %}active{% endif %}">Календарь</a>
+      <a href="{% url 'planning' %}" class="{% if '/planning/' in request.path %}active{% endif %}">
+        <img src="{% static 'img/sidebar_icons/Планирование.png' %}" class="nav-icon" alt="">Планирование
+      </a>
       {% if user.profile.role != 'employee' %}
-      <a href="{% url 'dashboards:index' %}" class="{% if '/dashboards/' in request.path %}active{% endif %}">Дашборды</a>
+      <a href="{% url 'kanban' %}" class="{% if '/kanban/' in request.path %}active{% endif %}">
+        <img src="{% static 'img/sidebar_icons/Канбан.png' %}" class="nav-icon" alt="">Канбан
+      </a>
       {% endif %}
-      <a href="{% url 'ai:index' %}" class="{% if '/ai/' in request.path %}active{% endif %}">AI-помощник</a>
-      <a href="{% url 'employees_root' %}" class="{% if '/employees/' in request.path %}active{% endif %}">Сотрудники</a>
-      <a href="{% url 'departments:list' %}" class="{% if '/departments/' in request.path and '/employees/' not in request.path %}active{% endif %}">Отделы</a>
+      <a href="{% url 'calendar' %}" class="{% if '/calendar/' in request.path %}active{% endif %}">
+        <img src="{% static 'img/sidebar_icons/Календарь.png' %}" class="nav-icon" alt="">Календарь
+      </a>
       {% if user.profile.role != 'employee' %}
-      <a href="{% url 'reports:index' %}" class="{% if '/reports/' in request.path %}active{% endif %}">Отчёты</a>
+      <a href="{% url 'dashboards:index' %}" class="{% if '/dashboards/' in request.path %}active{% endif %}">
+        <img src="{% static 'img/sidebar_icons/Дашборды.png' %}" class="nav-icon" alt="">Дашборды
+      </a>
       {% endif %}
-      <a href="{% url 'notifications:list' %}" class="{% if '/notifications/' in request.path %}active{% endif %}">Уведомления</a>
+      <a href="{% url 'ai:index' %}" class="{% if '/ai/' in request.path %}active{% endif %}">
+        <img src="{% static 'img/sidebar_icons/AI-помощник.png' %}" class="nav-icon" alt="">AI-помощник
+      </a>
+      <a href="{% url 'employees_root' %}" class="{% if '/employees/' in request.path %}active{% endif %}">
+        <img src="{% static 'img/sidebar_icons/Сотрудники.png' %}" class="nav-icon" alt="">Сотрудники
+      </a>
+      <a href="{% url 'departments:list' %}" class="{% if '/departments/' in request.path and '/employees/' not in request.path %}active{% endif %}">
+        <img src="{% static 'img/sidebar_icons/Отделы.png' %}" class="nav-icon" alt="">Отделы
+      </a>
+      {% if user.profile.role != 'employee' %}
+      <a href="{% url 'reports:index' %}" class="{% if '/reports/' in request.path %}active{% endif %}">
+        <img src="{% static 'img/sidebar_icons/Отчеты.png' %}" class="nav-icon" alt="">Отчёты
+      </a>
+      {% endif %}
+      <a href="{% url 'notifications:list' %}" class="{% if '/notifications/' in request.path %}active{% endif %}">
+        <img src="{% static 'img/sidebar_icons/Уведомления.png' %}" class="nav-icon" alt="">Уведомления
+      </a>
 
       {% if user.profile.role == 'admin' %}
-      <a href="{% url 'audit:list' %}" class="{% if '/audit/' in request.path %}active{% endif %}">Аудит</a>
+      <a href="{% url 'audit:list' %}" class="{% if '/audit/' in request.path %}active{% endif %}">
+        <img src="{% static 'img/sidebar_icons/Аудит.png' %}" class="nav-icon" alt="">Аудит
+      </a>
       {% endif %}
     </nav>
   </div>

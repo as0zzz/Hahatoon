@@ -10,35 +10,46 @@
     </div>
   </div>
 
-  <div class="kpi-grid kpi-grid-6">
-    <div class="kpi-card">
-      <span class="kpi-sub">Всего задач</span>
-      <strong>{{ metrics.total }}</strong>
-    </div>
-    <div class="kpi-card">
-      <span class="kpi-sub">Выполнено</span>
-      <strong>{{ metrics.done }} <small style="font-size:16px; color:var(--muted)">({% widthratio metrics.done metrics.total 100|default:"0" %}%)</small></strong>
-    </div>
-    <div class="kpi-card">
-      <span class="kpi-sub">В работе / На проверке</span>
-      <strong>{{ in_progress }}</strong>
-    </div>
-    <div class="kpi-card warning">
-      <span class="kpi-sub">Просрочено</span>
-      <strong>{{ metrics.overdue }}</strong>
-    </div>
-    <div class="kpi-card attention">
-      <span class="kpi-sub">Требуют внимания</span>
-      <strong>{{ metrics.attention }}</strong>
-    </div>
-    <div class="kpi-card">
-      <span class="kpi-sub">Средний прогресс (открытые)</span>
-      <strong>{{ avg_progress }}%</strong>
-      <div class="kpi-progress-bar">
-        <div class="kpi-progress-fill" style="width: {{ avg_progress }}%;"></div>
-      </div>
+
+  <div class="dash-tabs-wrapper">
+    <div class="dash-tabs">
+      <button class="dash-tab active" onclick="switchDashTab('general', this)">Общая сводка</button>
+      <button class="dash-tab" onclick="switchDashTab('departments', this)">Отделы и сотрудники</button>
+      <button class="dash-tab" onclick="switchDashTab('risks', this)">Риски и планирование</button>
     </div>
   </div>
+
+  <!-- GROUP 1: General -->
+  <div id="tab-general" class="dash-tab-group active">
+    <div class="kpi-grid kpi-grid-3">
+      <div class="kpi-card">
+        <span class="kpi-sub">Всего задач</span>
+        <strong>{{ metrics.total }}</strong>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-sub">Выполнено</span>
+        <strong>{{ metrics.done }} <small style="font-size:16px; color:var(--muted)">({% widthratio metrics.done metrics.total 100|default:"0" %}%)</small></strong>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-sub">В работе / На проверке</span>
+        <strong>{{ in_progress }}</strong>
+      </div>
+      <div class="kpi-card warning">
+        <span class="kpi-sub">Просрочено</span>
+        <strong>{{ metrics.overdue }}</strong>
+      </div>
+      <div class="kpi-card attention">
+        <span class="kpi-sub">Требуют внимания</span>
+        <strong>{{ metrics.attention }}</strong>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-sub">Средний прогресс (открытые)</span>
+        <strong>{{ avg_progress }}%</strong>
+        <div class="kpi-progress-bar">
+          <div class="kpi-progress-fill" style="width: {{ avg_progress }}%;"></div>
+        </div>
+      </div>
+    </div>
 
   <div class="content-grid one">
     <div class="panel">
@@ -46,9 +57,12 @@
         <h3>Эффективность отделов</h3>
         <span class="panel-hint">Распределение задач по статусам</span>
       </div>
-      <div class="chart-container chart-tall">
-        <canvas id="chart-dept-efficiency"></canvas>
+      <div class="chart-scroll-wrapper">
+        <div class="chart-container chart-tall" id="dept-chart-container">
+          <canvas id="chart-dept-efficiency"></canvas>
+        </div>
       </div>
+      <div id="dept-efficiency-legend" class="chart-custom-legend"></div>
     </div>
   </div>
 
@@ -116,6 +130,96 @@
     </div>
   </div>
 
+  </div>
+  <!-- END GROUP 1 -->
+
+  <!-- GROUP 2: Departments -->
+  <div id="tab-departments" class="dash-tab-group">
+
+
+  <div class="content-grid two">
+    <div class="panel">
+      <div class="panel-head">
+        <h3>Средний прогресс по отделам</h3>
+      </div>
+      <div class="chart-scroll-wrapper">
+        <div class="chart-container" id="dept-progress-container">
+          <canvas id="chart-dept-progress"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head">
+        <h3>Просрочки по отделам</h3>
+      </div>
+      <div class="chart-scroll-wrapper">
+        <div class="chart-container" id="overdue-dept-container">
+          <canvas id="chart-overdue-dept"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  <!-- END GROUP 2 -->
+
+  <!-- GROUP 3: Risks -->
+  <div id="tab-risks" class="dash-tab-group">
+    <div class="content-grid one">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>ТОП проблемных задач</h3>
+        </div>
+        <div class="table-wrap">
+          <table class="dash-table" id="risky-table">
+            <thead>
+              <tr>
+                <th>Название задачи</th>
+                <th>
+                  <select class="th-filter-select" id="filter-dept" onchange="filterRiskyTasks()">
+                    <option value="">Отдел (Все)</option>
+                  </select>
+                </th>
+                <th>
+                  <select class="th-filter-select" id="filter-resp" onchange="filterRiskyTasks()">
+                    <option value="">Ответственный (Все)</option>
+                  </select>
+                </th>
+                <th>
+                  <select class="th-filter-select" id="filter-risk" onchange="filterRiskyTasks()">
+                    <option value="">Риск (Все)</option>
+                  </select>
+                </th>
+                <th>Причина риска</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for task in risky_tasks %}
+              <tr class="risky-task-row" 
+                  data-dept="{{ task.department.name|default:'Без отдела' }}" 
+                  data-resp="{{ task.responsible.profile.full_name|default:task.responsible.username|default:'не назначен' }}" 
+                  data-risk="{{ task.get_risk_level_display }}">
+                <td>
+                  <a href="{% url 'tasks:detail' task.id %}" style="color:var(--ink); font-weight:650; text-decoration:none;">{{ task.title }}</a>
+                  {% if task.is_overdue %}<span class="badge badge-darkred" style="margin-left:8px; font-size:11px;">ПРОСРОЧЕНО</span>{% endif %}
+                </td>
+                <td>{{ task.department.name|default:'Без отдела' }}</td>
+                <td>{{ task.responsible.profile.full_name|default:task.responsible.username|default:'не назначен' }}</td>
+                <td>
+                  <span class="badge {{ task.risk_level|risk_class }}">
+                    {{ task.get_risk_level_display }}
+                  </span>
+                </td>
+                <td class="risk-reason-cell">{{ task.short_risk_reason }}</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="5" class="empty text-center">Проблемных задач не найдено</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
   <div class="content-grid two">
     <div class="panel">
       <div class="panel-head">
@@ -123,81 +227,6 @@
       </div>
       <div class="chart-container">
         <canvas id="chart-periods"></canvas>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="panel-head">
-        <h3>Средний прогресс по отделам</h3>
-      </div>
-      <div class="chart-container">
-        <canvas id="chart-dept-progress"></canvas>
-      </div>
-    </div>
-  </div>
-
-  <div class="content-grid one">
-    <div class="panel">
-      <div class="panel-head">
-        <h3>ТОП проблемных задач</h3>
-      </div>
-      <div class="table-wrap">
-        <table class="dash-table" id="risky-table">
-          <thead>
-            <tr>
-              <th>Название задачи</th>
-              <th>
-                <select class="th-filter-select" id="filter-dept" onchange="filterRiskyTasks()">
-                  <option value="">Отдел (Все)</option>
-                </select>
-              </th>
-              <th>
-                <select class="th-filter-select" id="filter-resp" onchange="filterRiskyTasks()">
-                  <option value="">Ответственный (Все)</option>
-                </select>
-              </th>
-              <th>
-                <select class="th-filter-select" id="filter-risk" onchange="filterRiskyTasks()">
-                  <option value="">Риск (Все)</option>
-                </select>
-              </th>
-              <th>Причина риска</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for task in risky_tasks %}
-            <tr class="risky-task-row" 
-                data-dept="{{ task.department.name|default:'Без отдела' }}" 
-                data-resp="{{ task.responsible.profile.full_name|default:task.responsible.username|default:'не назначен' }}" 
-                data-risk="{{ task.get_risk_level_display }}">
-              <td>
-                <a href="{% url 'tasks:detail' task.id %}" style="color:var(--ink); font-weight:650; text-decoration:none;">{{ task.title }}</a>
-                {% if task.is_overdue %}<span class="badge badge-darkred" style="margin-left:8px; font-size:11px;">ПРОСРОЧЕНО</span>{% endif %}
-              </td>
-              <td>{{ task.department.name|default:'Без отдела' }}</td>
-              <td>{{ task.responsible.profile.full_name|default:task.responsible.username|default:'не назначен' }}</td>
-              <td>
-                <span class="badge {% if task.risk_level == 'CRITICAL' %}badge-darkred{% elif task.risk_level == 'HIGH' %}badge-red{% elif task.risk_level == 'MEDIUM' %}badge-amber{% else %}badge-green{% endif %}">
-                  {{ task.get_risk_level_display }}
-                </span>
-              </td>
-              <td class="risk-reason-cell">{{ task.short_risk_reason }}</td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="5" class="empty text-center">Проблемных задач не найдено</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <div class="content-grid two">
-    <div class="panel">
-      <div class="panel-head">
-        <h3>Просрочки по отделам</h3>
-      </div>
-      <div class="chart-container">
-        <canvas id="chart-overdue-dept"></canvas>
       </div>
     </div>
     <div class="panel">
@@ -228,6 +257,8 @@
       </div>
     </div>
   </div>
+  </div>
+  <!-- END GROUP 3 -->
 
 </div>
 
@@ -296,6 +327,18 @@
       }
     });
   };
+
+  window.switchDashTab = function(tabId, btn) {
+    document.querySelectorAll('.dash-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    document.querySelectorAll('.dash-tab-group').forEach(group => group.classList.remove('active'));
+    document.getElementById('tab-' + tabId).classList.add('active');
+    
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 10);
+  };
 </script>
-<script src="/static/js/charts.js?v=2.0.1"></script>
+<script src="/static/js/charts.js?v=2.1.0"></script>
 {% endblock %}

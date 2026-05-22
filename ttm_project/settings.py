@@ -141,6 +141,7 @@ LOGOUT_REDIRECT_URL = 'login'
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 AI_PROVIDER = os.getenv("AI_PROVIDER", "gemini")
 AI_MOCK_MODE = os.getenv("AI_MOCK_MODE", "true").lower() == "true"
 

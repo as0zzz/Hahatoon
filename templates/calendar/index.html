@@ -63,7 +63,9 @@
         <p class="empty">На выбранный день задач нет.</p>
       {% endfor %}
     </div>
+    {% if user.profile.role != 'employee' %}
     <a class="btn btn-primary full-width" href="{% url 'tasks:create' %}">Создать задачу</a>
+    {% endif %}
   </aside>
 </section>
 {% endblock %}

@@ -5,6 +5,7 @@ from datetime import date, timedelta
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -17,6 +18,17 @@ from apps.notifications.services import notify_task_assigned, notify_task_status
 from apps.tasks.forms import TaskCommentForm, TaskForm
 from apps.tasks.models import Task, TaskHistory
 from apps.tasks.services import filter_tasks, get_task_metrics, refresh_task_risk, task_queryset_for_user
+import json
+from apps.accounts.models import UserProfile
+
+def get_user_mapping_json():
+    mapping = {}
+    for p in UserProfile.objects.select_related("user"):
+        mapping[p.user_id] = {
+            "department": p.department_id,
+            "team": p.team_id,
+        }
+    return json.dumps(mapping)
 
 
 @login_required
@@ -84,8 +96,10 @@ def task_detail(request, pk):
 
 @login_required
 def task_create(request):
+    if hasattr(request.user, "profile") and request.user.profile.role == "employee":
+        raise PermissionDenied("У вас нет прав на создание задач.")
     if request.method == "POST":
-        form = TaskForm(request.POST)
+        form = TaskForm(request.POST, user=request.user)
         if form.is_valid():
             task = form.save(commit=False)
             task.author = request.user
@@ -180,16 +194,18 @@ def task_create(request):
             else:
                 initial_data.pop("watchers", None)
 
-        form = TaskForm(initial=initial_data)
-    return render(request, "tasks/form.html", {"form": form, "title": "Создание задачи"})
+        form = TaskForm(initial=initial_data, user=request.user)
+    return render(request, "tasks/form.html", {"form": form, "title": "Создание задачи", "user_mapping_json": get_user_mapping_json()})
 
 
 @login_required
 def task_edit(request, pk):
+    if hasattr(request.user, "profile") and request.user.profile.role == "employee":
+        raise PermissionDenied("У вас нет прав на редактирование задач.")
     task = get_object_or_404(task_queryset_for_user(request.user), pk=pk)
     old_values = {field: getattr(task, field) for field in ["status", "priority", "deadline", "progress", "responsible_id"]}
     if request.method == "POST":
-        form = TaskForm(request.POST, instance=task)
+        form = TaskForm(request.POST, instance=task, user=request.user)
         if form.is_valid():
             task = form.save()
             for field, old_value in old_values.items():
@@ -207,14 +223,22 @@ def task_edit(request, pk):
             messages.success(request, "Задача обновлена")
             return redirect("tasks:detail", pk=task.pk)
     else:
-        form = TaskForm(instance=task)
-    return render(request, "tasks/form.html", {"form": form, "task": task, "title": "Редактирование задачи"})
+        form = TaskForm(instance=task, user=request.user)
+    return render(request, "tasks/form.html", {"form": form, "task": task, "title": "Редактирование задачи", "user_mapping_json": get_user_mapping_json()})
 
 
 @login_required
 @require_POST
 def task_delete(request, pk):
+    if hasattr(request.user, "profile") and request.user.profile.role == "employee":
+        raise PermissionDenied("У вас нет прав на удаление задач.")
     task = get_object_or_404(task_queryset_for_user(request.user), pk=pk)
+    
+    profile = getattr(request.user, "profile", None)
+    is_admin = profile and profile.role == "admin"
+    if not is_admin and request.user != task.author:
+        raise PermissionDenied("У вас нет прав на удаление этой задачи.")
+
     title = task.title
     log_action(request.user, "delete", "Task", task.id, {"title": title}, request)
     task.delete()
@@ -243,29 +267,73 @@ def add_comment(request, pk):
 @require_POST
 def change_status(request, pk):
     task = get_object_or_404(task_queryset_for_user(request.user), pk=pk)
-    new_status = request.POST.get("status")
-    if new_status not in Task.Status.values:
-        messages.error(request, "Некорректный статус")
-        return redirect("tasks:detail", pk=task.pk)
+    action = request.POST.get("action")
+    raw_status = request.POST.get("status")
+    
     old_status = task.status
-    task.status = new_status
-    task.last_status_change_at = timezone.now()
-    if new_status == Task.Status.DONE:
-        task.progress = 100
-    task.save(update_fields=["status", "last_status_change_at", "progress", "updated_at"])
-    TaskHistory.objects.create(
-        task=task,
-        user=request.user,
-        field_name="status",
-        old_value=old_status,
-        new_value=new_status,
-    )
-    refresh_task_risk(task)
-    notify_task_status_changed(task, old_status)
-    log_action(request.user, "change_status", "Task", task.id, {"from": old_status, "to": new_status}, request)
-    messages.success(request, "Статус обновлён")
+    new_status = None
+    
+    if action == "accept":
+        if task.status == Task.Status.NEW and request.user == task.responsible:
+            new_status = Task.Status.IN_PROGRESS
+        else:
+            messages.error(request, "Невозможно принять задачу в работу.")
+    elif action == "complete":
+        if task.status == Task.Status.IN_PROGRESS and request.user == task.responsible:
+            new_status = Task.Status.REVIEW
+        else:
+            messages.error(request, "Невозможно отправить задачу на проверку.")
+    elif action == "confirm":
+        profile = getattr(request.user, "profile", None)
+        is_manager = profile and profile.role != "employee"
+        is_author = request.user == task.author
+        is_admin = profile and profile.role == "admin"
+        
+        can_confirm = False
+        if is_admin or is_author:
+            can_confirm = True
+        elif is_manager and task.responsible != request.user:
+            can_confirm = True
+
+        if task.status == Task.Status.REVIEW and can_confirm:
+            new_status = Task.Status.DONE
+        else:
+            messages.error(request, "У вас нет прав для подтверждения задачи.")
+    elif action == "reject":
+        profile = getattr(request.user, "profile", None)
+        is_manager = profile and profile.role != "employee"
+        is_author = request.user == task.author
+        if task.status == Task.Status.REVIEW and (is_manager or is_author):
+            new_status = Task.Status.IN_PROGRESS
+        else:
+            messages.error(request, "У вас нет прав для отклонения задачи.")
+    elif raw_status and raw_status in Task.Status.values:
+        profile = getattr(request.user, "profile", None)
+        if profile and profile.role != "employee":
+            new_status = raw_status
+        else:
+            messages.error(request, "У вас нет прав для прямого изменения статуса.")
+    else:
+        messages.error(request, "Неизвестное действие.")
+        
+    if new_status:
+        task.status = new_status
+        task.last_status_change_at = timezone.now()
+        task.save(update_fields=["status", "last_status_change_at", "progress", "updated_at"])
+        TaskHistory.objects.create(
+            task=task,
+            user=request.user,
+            field_name="status",
+            old_value=old_status,
+            new_value=new_status,
+        )
+        refresh_task_risk(task)
+        notify_task_status_changed(task, old_status)
+        log_action(request.user, "change_status", "Task", task.id, {"from": old_status, "to": new_status, "action": action}, request)
+        messages.success(request, "Статус обновлён")
+        
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
-        return JsonResponse({"ok": True, "status": task.status, "status_label": task.get_status_display()})
+        return JsonResponse({"ok": bool(new_status), "status": task.status, "status_label": task.get_status_display()})
     return redirect("tasks:detail", pk=task.pk)
 
 
@@ -278,6 +346,8 @@ def planning(request):
 
 @login_required
 def kanban(request):
+    if hasattr(request.user, "profile") and request.user.profile.role == "employee":
+        raise PermissionDenied("У вас нет доступа к канбан-доске.")
     kanban_statuses = [
         (Task.Status.NEW, "Новая"),
         (Task.Status.IN_PROGRESS, "В работе"),

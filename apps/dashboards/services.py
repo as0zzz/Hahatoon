@@ -21,7 +21,7 @@ def build_dashboard_context(queryset=None):
     avg_progress = round(avg_progress)
 
     # 2. Department efficiency matrix
-    dept_status_counts = queryset.values('department__name', 'status').annotate(count=Count('id'))
+    dept_status_counts = queryset.values('department__name', 'status').annotate(count=Count('id')).order_by()
     dept_names = sorted(list(set(row['department__name'] or 'Без отдела' for row in dept_status_counts)))
     
     status_colors = {
@@ -90,7 +90,7 @@ def build_dashboard_context(queryset=None):
     employee_data.sort(key=lambda x: (-x['overdue'], -x['total']))
 
     # 4. Priority distribution
-    priority_counts = queryset.values('priority').annotate(count=Count('id'))
+    priority_counts = queryset.values('priority').annotate(count=Count('id')).order_by()
     priority_map = {
         Task.Priority.LOW: {'color': '#94A3B8'},
         Task.Priority.MEDIUM: {'color': '#60A5FA'},
@@ -111,7 +111,7 @@ def build_dashboard_context(queryset=None):
             priority_colors.append(p_info['color'])
 
     # 5. Risk distribution
-    risk_counts = queryset.values('risk_level').annotate(count=Count('id'))
+    risk_counts = queryset.values('risk_level').annotate(count=Count('id')).order_by()
     risk_map = {
         Task.Risk.LOW: {'color': '#34D399'},
         Task.Risk.MEDIUM: {'color': '#FBBF24'},
@@ -132,14 +132,14 @@ def build_dashboard_context(queryset=None):
             risk_colors.append(r_info['color'])
 
     # 6. Dept average progress
-    dept_progress = open_tasks.values('department__name').annotate(avg=Avg('progress'))
+    dept_progress = open_tasks.values('department__name').annotate(avg=Avg('progress')).order_by()
     dept_progress_labels = [row['department__name'] or 'Без отдела' for row in dept_progress]
     dept_progress_values = [round(row['avg'] or 0) for row in dept_progress]
 
     # 7. Overdue by department
     overdue_dept = queryset.filter(
         Q(status=Task.Status.OVERDUE) | Q(deadline__lt=timezone.localdate())
-    ).exclude(status=Task.Status.DONE).values('department__name').annotate(count=Count('id'))
+    ).exclude(status=Task.Status.DONE).values('department__name').annotate(count=Count('id')).order_by()
     overdue_dept_labels = [row['department__name'] or 'Без отдела' for row in overdue_dept]
     overdue_dept_values = [row['count'] for row in overdue_dept]
 

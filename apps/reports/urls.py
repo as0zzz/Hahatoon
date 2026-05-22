@@ -7,5 +7,5 @@ app_name = "reports"
 urlpatterns = [
     path("", views.index, name="index"),
     path("create/", views.create, name="create"),
-    path("export/excel/", views.export_excel, name="export_excel"),
+    path("export/excel/<int:pk>/", views.export_excel, name="export_excel"),
 ]

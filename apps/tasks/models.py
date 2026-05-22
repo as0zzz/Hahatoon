@@ -117,6 +117,18 @@ class Task(models.Model):
     def is_overdue(self):
         return bool(self.deadline and self.deadline < timezone.localdate() and not self.is_closed)
 
+    def save(self, *args, **kwargs):
+        if self.status == self.Status.NEW:
+            self.progress = 0
+        elif self.status == self.Status.IN_PROGRESS:
+            self.progress = 40
+        elif self.status == self.Status.REVIEW:
+            self.progress = 90
+        elif self.status == self.Status.DONE:
+            self.progress = 100
+        # If OVERDUE, keep current progress
+        super().save(*args, **kwargs)
+
 
 class TaskComment(models.Model):
     task = models.ForeignKey(Task, verbose_name="Задача", on_delete=models.CASCADE, related_name="comments")

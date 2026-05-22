@@ -6,10 +6,15 @@
   <article class="panel">
     <div class="panel-head">
       <div>
-        <h2>{{ task.title }}</h2>
-        <p>{{ task.description }}</p>
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+          <span class="badge {{ task.status|status_class }}" style="font-size: 14px;">{{ task.get_status_display }}</span>
+          <h2 style="margin: 0;">{{ task.title }}</h2>
+        </div>
+        <p style="margin: 0;">{{ task.description }}</p>
       </div>
+      {% if user.profile.role != 'employee' %}
       <a class="btn btn-light" href="{% url 'tasks:edit' task.id %}">Редактировать</a>
+      {% endif %}
     </div>
     <div class="detail-grid">
       <span>Отдел <strong>{{ task.department.name|default:"Без отдела" }}</strong></span>
@@ -24,15 +29,43 @@
       <p>{{ task.risk_recommendation }}</p>
     </div>
     <div style="display: flex; align-items: center; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
-      <form method="post" action="{% url 'tasks:change_status' task.id %}" style="display: flex; align-items: center; gap: 10px; margin: 0;">
-        {% csrf_token %}
-        <select name="status" class="form-control" style="width: auto; min-width: 220px; margin: 0;">{% for value,label in task.Status.choices %}<option value="{{ value }}" {% if task.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
-        <button class="btn btn-primary" type="submit" style="white-space: nowrap;">Обновить статус</button>
-      </form>
+      <div class="task-actions" style="display: flex; align-items: center; gap: 10px; margin: 0;">
+        
+        {% if task.status == 'new' and user == task.responsible %}
+          <form method="post" action="{% url 'tasks:change_status' task.id %}" style="margin: 0;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="accept">
+            <button class="btn btn-primary" type="submit">Принять в работу</button>
+          </form>
+        {% endif %}
+
+        {% if task.status == 'in_progress' and user == task.responsible %}
+          <form method="post" action="{% url 'tasks:change_status' task.id %}" style="margin: 0;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="complete">
+            <button class="btn btn-primary" type="submit">Отправить на проверку</button>
+          </form>
+        {% endif %}
+
+        {% if task.status == 'review' and user.profile.role != 'employee' %}
+          <form method="post" action="{% url 'tasks:change_status' task.id %}" style="margin: 0;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="confirm">
+            <button class="btn btn-success" type="submit">Подтвердить выполнение</button>
+          </form>
+          <form method="post" action="{% url 'tasks:change_status' task.id %}" style="margin: 0;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="reject">
+            <button class="btn btn-warning" type="submit">Вернуть в работу (Отклонить)</button>
+          </form>
+        {% endif %}
+      </div>
+      {% if user.profile.role != 'employee' %}
       <form method="post" action="{% url 'tasks:delete' task.id %}" style="margin: 0;" onsubmit="return confirmTaskDelete(event, this);">
         {% csrf_token %}
         <button class="btn btn-danger" type="submit" style="white-space: nowrap;">Удалить задачу</button>
       </form>
+      {% endif %}
     </div>
   </article>
   <aside class="panel">

@@ -83,6 +83,9 @@ button, input, select, textarea { font: inherit; letter-spacing: 0; color: var(-
 .sidebar .brand small { color: #c6d6ef; display: block; }
 .nav { display: grid; gap: 4px; }
 .nav a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 11px 12px;
   border-radius: 14px;
   color: #e7eefc;
@@ -93,6 +96,21 @@ button, input, select, textarea { font: inherit; letter-spacing: 0; color: var(-
   background: var(--digital);
   color: #ffffff;
   font-weight: 650;
+}
+.nav-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  /* Invert black icons to white and lower opacity slightly */
+  filter: brightness(0) invert(1) opacity(0.7);
+  transition: filter 0.18s ease, opacity 0.18s ease, transform 0.18s ease;
+}
+.nav a:hover .nav-icon {
+  filter: brightness(0) invert(1) opacity(0.9);
+  transform: translateX(2px);
+}
+.nav a.active .nav-icon {
+  filter: brightness(0) invert(1) opacity(1);
 }
 .main { min-width: 0; padding: 24px 28px 48px; }
 .topbar {
@@ -275,11 +293,22 @@ button, input, select, textarea { font: inherit; letter-spacing: 0; color: var(-
 .hero-band h2 { font-size: 34px; max-width: 760px; margin: 0 0 10px; }
 .hero-band p { max-width: 740px; color: rgba(255, 255, 255, 0.8); }
 .hero-stat { align-self: center; text-align: right; }
+.hero-stat { align-self: center; text-align: right; }
 .hero-stat span { display: block; font-size: 54px; font-weight: 750; }
 .hero-stat small { color: rgba(255, 255, 255, 0.8); }
 
-/* Dashboard: 6-column KPI grid */
-.kpi-grid-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+/* Dashboard Tabs */
+.dash-tabs-wrapper { margin-bottom: 24px; }
+.dash-tabs { display: inline-flex; padding: 4px; border-radius: 12px; background: var(--line); }
+.dash-tab { padding: 8px 16px; border: none; background: transparent; color: var(--muted); font-weight: 650; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; }
+.dash-tab:hover { color: var(--ink); }
+.dash-tab.active { background: var(--white); color: var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.dash-tab-group { display: none; }
+.dash-tab-group.active { display: block; animation: fade-in 0.3s ease; }
+@keyframes fade-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Dashboard: 3-column KPI grid */
+.kpi-grid.kpi-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .kpi-sub { display: block; color: var(--muted); font-size: 13px; font-weight: 500; margin-top: 2px; }
 .kpi-progress-bar { margin-top: 10px; height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; }
 .kpi-progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #003C97, #269AE6); transition: width .6s ease; }
@@ -288,10 +317,16 @@ button, input, select, textarea { font: inherit; letter-spacing: 0; color: var(-
 .content-grid.one { grid-template-columns: 1fr; }
 
 /* Dashboard: chart containers */
-.chart-container { position: relative; width: 100%; min-height: 260px; }
-.chart-container.chart-tall { min-height: 340px; }
+.chart-scroll-wrapper { width: 100%; overflow-x: auto; overflow-y: hidden; -ms-overflow-style: none; scrollbar-width: none; }
+.chart-scroll-wrapper::-webkit-scrollbar { display: none; }
+.chart-container { position: relative; width: 100%; height: 260px; min-height: 260px; }
+.chart-container.chart-tall { height: 340px; min-height: 340px; }
 .chart-container canvas { max-height: 400px !important; }
 .panel-hint { color: var(--muted); font-size: 13px; font-weight: 500; }
+
+.chart-custom-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-top: 16px; }
+.chart-custom-legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); cursor: pointer; transition: opacity 0.2s; }
+.chart-custom-legend-color { width: 32px; height: 12px; border-radius: 2px; }
 
 /* Dashboard: tables */
 .dash-table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -368,7 +403,7 @@ button, input, select, textarea { font: inherit; letter-spacing: 0; color: var(-
 .kpi-card strong { display: block; color: var(--ink); font-size: 36px; margin-top: 8px; }
 .kpi-card.warning strong { color: var(--orange); }
 .kpi-card.attention strong { color: var(--red); }
-.panel { padding: 22px; margin-bottom: 24px; }
+.panel { padding: 22px; margin-bottom: 24px; min-width: 0; }
 .panel.narrow { max-width: 920px; }
 .panel h2, .panel h3 { color: var(--ink); margin-top: 0; }
 .panel-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; margin-bottom: 16px; }

@@ -39,7 +39,17 @@
         <span>Отдел<strong>{{ profile.department.name|default:"Не указан" }}</strong></span>
         <span>Команда<strong>{{ profile.team.name|default:"Не указана" }}</strong></span>
         <span>Роль<strong>{{ profile.get_role_display }}</strong></span>
-        <span>Загрузка<strong>{{ profile.get_workload_index_display }}</strong></span>
+        <span>Загрузка
+          <strong>
+            {% if profile.workload_index == 'normal' %}
+              <svg style="vertical-align: middle; margin-left: 4px;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+            {% elif profile.workload_index == 'high' %}
+              <svg style="vertical-align: middle; margin-left: 4px;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="15" x2="16" y2="15"></line><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+            {% else %}
+              <svg style="vertical-align: middle; margin-left: 4px;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M16 16s-1.5-2-4-2-4 2-4 2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+            {% endif %}
+          </strong>
+        </span>
       </div>
     </article>
 

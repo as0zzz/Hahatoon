@@ -6,15 +6,17 @@
     <div></div>
     <div class="button-row">
       <a class="btn btn-primary" href="{% url 'reports:create' %}">Сформировать отчёт</a>
-      <a class="btn btn-light" href="{% url 'reports:export_excel' %}">Экспорт Excel</a>
     </div>
   </div>
   <div class="scroll-list">
   {% for report in reports %}
-    <article class="report-row">
-      <h3>{{ report.title }}</h3>
-      <p>{{ report.content|truncatechars:220 }}</p>
-      <small>{{ report.get_period_type_display }} · {{ report.period_start|date:"d.m.Y" }} — {{ report.period_end|date:"d.m.Y" }}</small>
+    <article class="report-row" style="display: flex; gap: 16px; justify-content: space-between; align-items: center;">
+      <div>
+        <h3 style="margin: 0 0 8px;">{{ report.title }}</h3>
+        <p style="margin: 0 0 8px;">{{ report.content|truncatechars:220 }}</p>
+        <small>{{ report.get_period_type_display }} · {{ report.period_start|date:"d.m.Y" }} — {{ report.period_end|date:"d.m.Y" }}</small>
+      </div>
+      <a class="btn btn-light" style="flex-shrink: 0;" href="{% url 'reports:export_excel' report.pk %}">Экспорт</a>
     </article>
   {% empty %}
     <p class="empty">Отчёты ещё не сформированы.</p>

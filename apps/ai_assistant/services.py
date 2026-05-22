@@ -14,7 +14,7 @@ class AIAssistantService:
     RELATED_KEYWORDS = (
         "ttm", "ттм", "транстелематика", "задач", "дедлайн", "срок", "статус",
         "риск", "приоритет", "отдел", "команд", "сотрудник", "ответствен",
-        "перегруз", "перегруж", "загруз", "нагруз", "план", "календар", "уведом", "отчёт", "отчет",
+        "перегруз", "перегруж", "загруз", "загруж", "нагруз", "нагруж", "план", "календар", "уведом", "отчёт", "отчет",
         "канбан", "дашборд", "выполн", "просроч", "финанс",
         "юрид", "проект", "молодых талант",
     )
@@ -66,11 +66,12 @@ class AIAssistantService:
                 name_mapping = {
                     "Gemma 4 31B": "gemma-4-31b-it",
                     "Gemma 4 26B": "gemma-4-26b-a4b-it",
-                    "Gemini 3.1 Flash Lite": "gemini-3.1-flash-lite"
+                    "Gemini 3.1 Flash Lite": "gemini-3.1-flash-lite",
+                    "Авто": "openrouter/free"
                 }
                 real_model_name = name_mapping.get(model_name) or model_name.lower().replace(" ", "-")
 
-            model = genai.GenerativeModel(real_model_name, generation_config={"temperature": 0.1})
+
             prompt = (
                 "Проанализируй текст задачи и верни СТРОГО один валидный JSON объект (без Markdown). "
                 "Поля: 'title' (строка), 'description' (строка), "
@@ -81,8 +82,19 @@ class AIAssistantService:
                 "'tags' (строка, через запятую), 'estimated_hours' (целое число), 'parent_task' (строка, название родительской задачи). "
                 "Не найденные строковые поля делай пустой строкой, числовые - 0, массивы - пустые.\n\nТекст: " + text
             )
-            response = model.generate_content(prompt, request_options={"timeout": 15})
-            raw_text = response.text.strip().removeprefix("```json").removesuffix("```").strip()
+            
+            if real_model_name.startswith("qwen/") or real_model_name.startswith("openrouter/"):
+                raw_text = self._openrouter_answer(prompt, real_model_name)
+            else:
+                model = genai.GenerativeModel(real_model_name, generation_config={"temperature": 0.1})
+                response = model.generate_content(prompt, request_options={"timeout": 15})
+                raw_text = response.text
+
+            raw_text = raw_text.strip().removeprefix("```json").removesuffix("```").strip()
+            if raw_text.startswith("```"):
+                raw_text = raw_text.split("\n", 1)[-1]
+            raw_text = raw_text.removesuffix("```").strip()
+
             data = json.loads(raw_text)
             return {
                 "title": data.get("title") or text[:120],
@@ -155,18 +167,43 @@ class AIAssistantService:
             name_mapping = {
                 "Gemma 4 31B": "gemma-4-31b-it",
                 "Gemma 4 26B": "gemma-4-26b-a4b-it",
-                "Gemini 3.1 Flash Lite": "gemini-3.1-flash-lite"
+                "Gemini 3.1 Flash Lite": "gemini-3.1-flash-lite",
+                "Авто": "openrouter/free"
             }
             real_model_name = name_mapping.get(model_name) or model_name.lower().replace(" ", "-")
+
+        prompt = self._build_prompt(question, user)
+        
+        if real_model_name.startswith("qwen/") or real_model_name.startswith("openrouter/"):
+            return self._openrouter_answer(prompt, real_model_name)
 
         model = genai.GenerativeModel(
             real_model_name,
             system_instruction=SYSTEM_PROMPT,
             generation_config={"temperature": 0.35, "top_p": 0.85, "top_k": 32, "max_output_tokens": 650},
         )
-        prompt = self._build_prompt(question, user)
         response = model.generate_content(prompt, request_options={"timeout": 12})
         return response.text
+
+    def _openrouter_answer(self, prompt, model_name):
+        import requests
+        headers = {
+            "Authorization": f"Bearer {settings.OPENROUTER_API_KEY}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "http://localhost:8000",
+            "X-Title": "TTM AI Assistant"
+        }
+        data = {
+            "model": model_name,
+            "messages": [
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.35
+        }
+        resp = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data, timeout=15)
+        resp.raise_for_status()
+        return resp.json()["choices"][0]["message"]["content"]
 
     def _visible_tasks(self, user=None):
         if user and getattr(user, "is_authenticated", False):
@@ -177,9 +214,13 @@ class AIAssistantService:
         queryset = self._visible_tasks(user)
         metrics = get_task_metrics(queryset)
         department = self._find_department(question)
+        responsible = self._find_responsible(question, user)
+        
         analysis_queryset = queryset
         if department:
             analysis_queryset = analysis_queryset.filter(department=department)
+        if responsible:
+            analysis_queryset = analysis_queryset.filter(responsible=responsible)
         tasks = analysis_queryset.order_by("deadline", "-priority")[:50]
         workload = "; ".join(f"{name}: {count}" for name, count in metrics["workload"][:8]) or "нет назначенных задач"
         task_lines = []
@@ -194,8 +235,11 @@ class AIAssistantService:
             )
         if not task_lines:
             task_lines.append("- задач по заданному фильтру не найдено")
+        current_user_name = getattr(getattr(user, "profile", None), "full_name", None) or getattr(user, "username", "неизвестный пользователь") if user else "неизвестный пользователь"
         return (
             "У тебя есть доступ к базе задач TTM. Не отвечай, что у тебя нет доступа к задачам: используй только данные ниже.\n"
+            f"Имя текущего пользователя (автор вопроса): {current_user_name}\n"
+            "ВНИМАНИЕ: Если пользователь спрашивает про СВОИ задачи («мои задачи», «у меня») или про задачи КОНКРЕТНОГО сотрудника, ВЫБЕРИ ИЗ СПИСКА ТОЛЬКО его задачи. Строго игнорируй чужие задачи, не выводи их!\n"
             "Если вопрос не связан с TTM, откажись коротко и не отвечай на внешнюю тему.\n\n"
             f"Вопрос пользователя: {question}\n\n"
             "Общие метрики:\n"
@@ -206,6 +250,7 @@ class AIAssistantService:
             f"- Высокий приоритет: {metrics['high_priority']}\n"
             f"- Текущая загрузка сотрудников: {workload}\n"
             f"- Фильтр по отделу: {department.name if department else 'не задан'}\n"
+            f"- Фильтр по сотруднику: {getattr(getattr(responsible, 'profile', None), 'full_name', None) or getattr(responsible, 'username', 'не задан') if responsible else 'не задан'}\n"
             f"- Задач в выбранном срезе: {analysis_queryset.count()}\n\n"
             "Задачи для анализа:\n"
             + "\n".join(task_lines)
@@ -258,7 +303,23 @@ class AIAssistantService:
         lowered = question.lower()
         if any(keyword in lowered for keyword in self.RELATED_KEYWORDS):
             return True
-        return bool(self._find_department(question))
+        return bool(self._find_department(question)) or bool(self._find_responsible(question))
+
+    def _find_responsible(self, question, user=None):
+        lowered = question.lower()
+        if user and getattr(user, "is_authenticated", False):
+            if re.search(r"\b(мои|меня|мне|мой|моя)\b", lowered):
+                return user
+                
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        for u in User.objects.select_related("profile").all()[:100]:
+            full_name = getattr(u, "profile", None) and u.profile.full_name or u.username
+            first_name = full_name.split()[0].lower()
+            root = first_name[:-1] if len(first_name) > 3 else first_name
+            if root and re.search(rf"\b{re.escape(root)}[а-яёa-z]*\b", lowered):
+                return u
+        return None
 
     def _format_task_line(self, task):
         responsible = getattr(getattr(task.responsible, "profile", None), "full_name", None) or getattr(task.responsible, "username", "не назначен")

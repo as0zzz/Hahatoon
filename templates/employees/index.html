@@ -22,7 +22,17 @@
 </section>
 <section class="employee-grid">
   {% for profile in profiles %}
-    <a class="employee-card" href="{% url 'departments:employee_detail' profile.pk %}">
+    <a class="employee-card" href="{% url 'departments:employee_detail' profile.pk %}" style="position: relative;">
+      <div style="position: absolute; top: 16px; right: 16px; display: flex; flex-direction: column; align-items: center; gap: 4px;" title="Загрузка: {{ profile.get_workload_index_display }}">
+        <span style="font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Загрузка</span>
+        {% if profile.workload_index == 'normal' %}
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+        {% elif profile.workload_index == 'high' %}
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="15" x2="16" y2="15"></line><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+        {% else %}
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M16 16s-1.5-2-4-2-4 2-4 2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+        {% endif %}
+      </div>
       <h3>{{ profile.full_name }}</h3>
       <p>{{ profile.position }}</p>
       <span>{{ profile.department.name|default:"Без отдела" }}</span>
@@ -31,7 +41,7 @@
         <strong>{{ profile.active_tasks }}</strong><small>в работе</small>
         <strong>{{ profile.overdue_tasks }}</strong><small>просрочено</small>
       </div>
-      <em class="workload">{{ profile.get_workload_index_display }}</em>
+
     </a>
   {% empty %}
     <p class="empty">Сотрудники не найдены.</p>

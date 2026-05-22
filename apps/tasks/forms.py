@@ -15,14 +15,9 @@ class TaskForm(forms.ModelForm):
             "department",
             "team",
             "responsible",
-            "watchers",
             "planning_period",
-            "parent_task",
-            "annual_goal",
             "deadline",
             "priority",
-            "status",
-            "progress",
             "tags",
             "estimated_hours",
             "actual_hours",
@@ -30,11 +25,10 @@ class TaskForm(forms.ModelForm):
         widgets = {
             "description": forms.Textarea(attrs={"rows": 4}),
             "deadline": forms.DateInput(attrs={"type": "date"}),
-            "watchers": forms.CheckboxSelectMultiple(attrs={"class": "checkbox-list"}),
-            "progress": forms.NumberInput(attrs={"min": 0, "max": 100}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, user=None, **kwargs):
+        self.user = user
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             if isinstance(field.widget, forms.CheckboxSelectMultiple):
@@ -43,6 +37,17 @@ class TaskForm(forms.ModelForm):
             field.widget.attrs["class"] = f"{classes} {FORM_CONTROL}".strip()
         self.fields["estimated_hours"].required = False
         self.fields["actual_hours"].required = False
+
+    def clean_responsible(self):
+        responsible = self.cleaned_data.get("responsible")
+        if responsible and self.user:
+            profile = getattr(self.user, "profile", None)
+            is_admin = profile and profile.role == "admin"
+            
+            if not is_admin and responsible == self.user:
+                if not self.instance.pk or self.instance.responsible != responsible:
+                    raise forms.ValidationError("Вы не можете назначить задачу самому себе.")
+        return responsible
 
 
 class TaskCommentForm(forms.ModelForm):

@@ -2,7 +2,9 @@
 {% load ttm_tags %}
 {% block title %}{{ title }} TTM{% endblock %}
 {% block topbar_actions %}
+  {% if user.profile.role != 'employee' %}
   <a class="btn btn-primary" href="{% url 'tasks:create' %}">Создать задачу</a>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
